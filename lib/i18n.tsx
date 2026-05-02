@@ -72,14 +72,16 @@ export const translations: Translations = {
     'updates.headline': 'Heads up ⚠️',
     'updates.body':
       'We recommend keeping an eye on this section, as we’ll be sharing the latest updates on the wedding planning here. As the big day approaches, you’ll find all the updated information here, including the time and location of the Thursday pre-wedding (relaxed plan — beach-hut xiringuito), should you wish to join us and spend some time with us and other guests. We will also share the recommended arrival time for Friday, the wedding day, so everything runs smoothly.',
-    'updates.beachTitle': 'Thursday pre-wedding · Beach-hut xiringuito 🏖️',
-    'updates.beachWhen': 'Thursday, 24 September 2026 — afternoon onwards',
-    'updates.beachWhere': 'Salou seafront — exact xiringuito to follow',
+    'updates.beachTitle': 'Thursday pre-wedding Meet & Greet 🏖️',
+    'updates.beachWhen': 'Thursday, 24 September 2026 — relaxed afternoon',
+    'updates.beachWhere': 'Exact Beach Hut / xiringuito to follow',
     'updates.beachBody':
-      'Before the big day we’re hosting a laid-back welcome at a Salou beach-bar (xiringuito) — drinks, snacks, sand between your toes. Come say hi, ease into the weekend and meet other guests. Dress code is whatever you’d wear to the beach. We’ll post the exact bar and arrival time here as soon as it’s pinned down.',
+      'Before the big day we’d love to get together for a laid-back welcome at a beach-bar (xiringuito) — drinks, snacks, sand between your toes (self service). Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something White! We’ll post the exact bar and arrival time here as soon as it’s pinned down.',
     'updates.timelineTitle': 'Wedding day timeline',
     'updates.timelineBody':
       'Here we’ll share a rough timeline of the big day, so you can be part of every moment with us. All the details will be coming soon 🥳',
+    'day.tbaBadge': 'Coming soon',
+    'day.tbaNote': 'The timeline is not locked in yet — we’ll reveal the full schedule closer to the day.',
 
     // Info / venue / gifts / questions
     'info.title': 'Practical Info',
@@ -220,14 +222,17 @@ export const translations: Translations = {
     'updates.headline': '¡Atención ⚠️!',
     'updates.body':
       'Te recomendamos no perder de vista esta sección, ya que aquí iremos compartiendo las últimas novedades sobre la organización de la boda. A medida que se acerque el gran día, encontrarás aquí toda la información actualizada, incluyendo la hora y el lugar de la pre-boda del jueves (plan relax — xiringuito en la playa), por si te apetece pasarte y compartir un rato con nosotros y otros invitados. También indicaremos la hora a la que deberás llegar el viernes, día de la boda, para que todo fluya perfectamente.',
-    'updates.beachTitle': 'Pre-boda del jueves · Xiringuito en la playa 🏖️',
-    'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — desde la tarde',
-    'updates.beachWhere': 'Paseo marítimo de Salou — confirmaremos el xiringuito exacto',
+    'updates.beachTitle': 'Meet & Greet pre-boda del jueves 🏖️',
+    'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — tarde tranquila',
+    'updates.beachWhere': 'Confirmaremos el chiringuito / Beach Hut exacto',
     'updates.beachBody':
-      'Antes del gran día queremos invitaros a un encuentro relajado en un xiringuito de Salou: bebidas, picoteo y arena entre los dedos. Pasaos a saludar, id soltando el cuerpo para el finde y conoced a otros invitados. Como código de vestimenta, lo que llevarías a la playa. Publicaremos aquí el bar exacto y la hora de llegada en cuanto lo cerremos.',
+      'Antes del gran día nos encantaría reunirnos en un encuentro relajado en un chiringuito de playa: bebida, picoteo y arena entre los dedos (self service). Pasaos a saludar, conoced a otros invitados y id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo BLANCO! Publicaremos aquí el bar exacto y la hora de llegada en cuanto lo cerremos.',
     'updates.timelineTitle': 'Timeline del día',
     'updates.timelineBody':
       'Aquí compartiremos un breve resumen del timeline del gran día, para que puedas acompañarnos en cada momento. Pronto tendrás todos los detalles 🥳',
+    'day.tbaBadge': 'Próximamente',
+    'day.tbaNote':
+      'El timeline aún no está cerrado — desvelaremos los horarios definitivos más cerca del día.',
 
     'info.title': 'Información práctica',
     'info.venueLabel': 'Lugar',

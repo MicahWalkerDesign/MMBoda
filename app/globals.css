@@ -41,6 +41,10 @@
 }
 
 html {
+  /* Bump base font-size by ~1pt so every Tailwind rem-based size
+     (text-xs … text-3xl) scales up uniformly. Keeps every existing
+     line-height / spacing ratio intact. */
+  font-size: 17px;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }

@@ -7,14 +7,11 @@ import { useI18n } from '../../lib/i18n';
 import { asset } from '../../lib/paths';
 
 const PHOTOS = [
-    asset('/images/IMG_2283.jpeg'),
-    asset('/images/IMG_2289.jpeg'),
     asset('/images/IMG_2290.jpeg'),
     asset('/images/IMG_2310.jpeg'),
     asset('/images/IMG_2313.jpeg'),
     asset('/images/IMG_2314.jpeg'),
     asset('/images/IMG_2326.jpeg'),
-    asset('/images/IMG_2357.jpeg'),
     asset('/images/IMG_2374.jpeg'),
     asset('/images/IMG_2388.jpeg'),
 ];

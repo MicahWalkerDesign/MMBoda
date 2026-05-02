@@ -12,14 +12,11 @@ import { useI18n } from '../lib/i18n';
 import { asset } from '../lib/paths';
 
 const ENGAGEMENT_PHOTOS = [
-  asset('/images/IMG_2283.jpeg'),
-  asset('/images/IMG_2289.jpeg'),
   asset('/images/IMG_2290.jpeg'),
   asset('/images/IMG_2310.jpeg'),
   asset('/images/IMG_2313.jpeg'),
   asset('/images/IMG_2314.jpeg'),
   asset('/images/IMG_2326.jpeg'),
-  asset('/images/IMG_2357.jpeg'),
   asset('/images/IMG_2374.jpeg'),
   asset('/images/IMG_2388.jpeg'),
 ];
@@ -136,8 +133,9 @@ export default function HomePage() {
             priority
             sizes="100vw"
           />
-          {/* Cream wash so type stays legible without losing the photo */}
-          <div className="absolute inset-0 bg-gradient-to-b from-cream/55 via-cream/35 to-cream" />
+          {/* Cream wash so type stays legible — 10% lighter than before
+              so the photo shows through more, with stronger text contrast below. */}
+          <div className="absolute inset-0 bg-gradient-to-b from-cream/45 via-cream/25 to-cream" />
         </div>
 
         <div className="relative z-10 text-center w-full max-w-md mx-auto space-y-5 py-10">
@@ -184,7 +182,9 @@ export default function HomePage() {
 
           {/* Countdown */}
           <div className="animate-fade-in-up opacity-0 delay-300 space-y-2">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-coffee/45 font-semibold font-[family-name:var(--font-poppins)]">
+            <p
+              className="text-[11px] uppercase tracking-[0.18em] text-coffee font-semibold font-[family-name:var(--font-poppins)] [text-shadow:_0_1px_2px_rgba(251,245,236,0.85)]"
+            >
               {t('hero.countdownTitle')}
             </p>
             <CountdownTimer />
@@ -194,7 +194,7 @@ export default function HomePage() {
           <div className="animate-fade-in-up opacity-0 delay-400 pt-1">
             <a
               href="#rsvp"
-              className="inline-flex items-center gap-1.5 text-xs text-coffee/40 hover:text-terracotta transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-coffee hover:text-terracotta transition-colors [text-shadow:_0_1px_2px_rgba(251,245,236,0.85)]"
             >
               <span>{t('hero.scrollHint')}</span>
               <svg className="w-3.5 h-3.5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -344,46 +344,66 @@ export default function HomePage() {
             <p className="text-xs text-coffee/50">{t('day.subtitle')}</p>
           </div>
 
-          <div className="relative pl-10 space-y-0">
-            <div className="absolute left-[15px] top-7 bottom-7 w-0.5 bg-gradient-to-b from-terracotta/30 via-fuchsia/20 to-sage/20 rounded-full" />
+          {/* Timeline is not locked yet — we still render the events so guests
+              get a feel for the shape of the day, but blur the times/details
+              and overlay a "Coming soon" badge. */}
+          <div className="relative">
+            <div
+              className="relative pl-10 space-y-0 select-none pointer-events-none filter blur-[3px]"
+              aria-hidden="true"
+            >
+              <div className="absolute left-[15px] top-7 bottom-7 w-0.5 bg-gradient-to-b from-terracotta/30 via-fuchsia/20 to-sage/20 rounded-full" />
 
-            {EVENT_KEYS.map((event, i) => (
-              <div
-                key={event.key}
-                className="relative pb-4 last:pb-0 animate-fade-in-up opacity-0"
-                style={{ animationDelay: `${0.1 + i * 0.08}s` }}
-              >
+              {EVENT_KEYS.map((event, i) => (
                 <div
-                  className={`absolute -left-10 top-4 w-7 h-7 rounded-full flex items-center justify-center text-sm z-10 ${event.highlight ? 'bg-fuchsia shadow-lg shadow-fuchsia/25 scale-110' : 'glass'
-                    }`}
+                  key={event.key}
+                  className="relative pb-4 last:pb-0 animate-fade-in-up opacity-0"
+                  style={{ animationDelay: `${0.1 + i * 0.08}s` }}
                 >
-                  {event.icon}
-                </div>
-
-                <GlassCard
-                  heavy={event.highlight}
-                  animate={false}
-                  className={`!p-3.5 ${event.highlight ? '!border-fuchsia/15' : ''}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee">
-                        {t(`day.${event.key}.title`)}
-                      </h3>
-                      <p className="text-xs text-coffee/45 mt-0.5 leading-relaxed">
-                        {t(`day.${event.key}.desc`)}
-                      </p>
-                    </div>
-                    <span className="flex-none text-[11px] font-bold text-terracotta bg-terracotta/8 rounded-full px-2 py-0.5 mt-0.5">
-                      {event.time}
-                    </span>
+                  <div
+                    className={`absolute -left-10 top-4 w-7 h-7 rounded-full flex items-center justify-center text-sm z-10 ${event.highlight ? 'bg-fuchsia shadow-lg shadow-fuchsia/25 scale-110' : 'glass'
+                      }`}
+                  >
+                    {event.icon}
                   </div>
-                </GlassCard>
+
+                  <GlassCard
+                    heavy={event.highlight}
+                    animate={false}
+                    className={`!p-3.5 ${event.highlight ? '!border-fuchsia/15' : ''}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee">
+                          {t(`day.${event.key}.title`)}
+                        </h3>
+                        <p className="text-xs text-coffee/45 mt-0.5 leading-relaxed">
+                          {t(`day.${event.key}.desc`)}
+                        </p>
+                      </div>
+                      <span className="flex-none text-[11px] font-bold text-terracotta bg-terracotta/8 rounded-full px-2 py-0.5 mt-0.5">
+                        {event.time}
+                      </span>
+                    </div>
+                  </GlassCard>
+                </div>
+              ))}
+            </div>
+
+            {/* Coming-soon overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="glass-heavy rounded-full px-5 py-2 shadow-lg flex items-center gap-2">
+                <span aria-hidden>🔒</span>
+                <span className="text-xs font-semibold text-coffee font-[family-name:var(--font-poppins)] tracking-wide">
+                  {t('day.tbaBadge')}
+                </span>
               </div>
-            ))}
+            </div>
           </div>
 
-          <p className="text-center text-[11px] text-coffee/40 pt-1">⏰ {t('day.note')}</p>
+          <p className="text-center text-[11px] text-coffee/55 pt-1 leading-relaxed">
+            {t('day.tbaNote')}
+          </p>
         </div>
       </section>
 
