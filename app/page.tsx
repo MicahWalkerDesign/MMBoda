@@ -23,7 +23,7 @@ const ENGAGEMENT_PHOTOS = [
 
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
 // Replace with your deployed Google Apps Script Web App URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAkmszoeZ_Fz2jpylO3fmNxCCzz2dzQKTezYvAoFvwfNJon4JLQVdGpi0_Bf44Sq0/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 

@@ -7,7 +7,7 @@
 // "Anyone with the link → Viewer".
 
 export const GALLERY_FEED_URL =
-  'https://script.google.com/macros/s/AKfycbwAkmszoeZ_Fz2jpylO3fmNxCCzz2dzQKTezYvAoFvwfNJon4JLQVdGpi0_Bf44Sq0/exec';
+  'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
 
 /** How often the live gallery refreshes itself, in milliseconds. */
 export const GALLERY_REFRESH_MS = 15 * 60 * 1000;
