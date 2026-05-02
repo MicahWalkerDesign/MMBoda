@@ -20,7 +20,15 @@ export const translations: Translations = {
     // Hero
     'hero.welcome': "We're getting married!",
     'hero.dateLocation': '25 September 2026 · Salou, Tarragona',
+    'hero.date': 'Friday, 25 September 2026',
+    'hero.time': '15:00 · ceremony',
+    'hero.place': 'Salou, Tarragona · Spain',
+    'hero.countdownTitle': 'Until we say "I do"',
     'hero.scrollHint': 'Scroll for details',
+    'countdown.days': 'Days',
+    'countdown.hours': 'Hours',
+    'countdown.minutes': 'Min',
+    'countdown.seconds': 'Sec',
 
     // Welcome / Intro
     'welcome.title': 'Welcome to our wedding!',
@@ -63,7 +71,15 @@ export const translations: Translations = {
     'updates.title': 'Wedding Blog',
     'updates.headline': 'Heads up ⚠️',
     'updates.body':
-      'Keep an eye on this section — we’ll share the latest planning updates here. As the big day approaches you’ll find all the info, including the time and place for the Thursday pre-wedding (a relaxed beach-hut plan), and the recommended arrival time for Friday so everything runs smoothly.',
+      'We recommend keeping an eye on this section, as we’ll be sharing the latest updates on the wedding planning here. As the big day approaches, you’ll find all the updated information here, including the time and location of the Thursday pre-wedding (relaxed plan — beach-hut xiringuito), should you wish to join us and spend some time with us and other guests. We will also share the recommended arrival time for Friday, the wedding day, so everything runs smoothly.',
+    'updates.beachTitle': 'Thursday pre-wedding · Beach-hut xiringuito 🏖️',
+    'updates.beachWhen': 'Thursday, 24 September 2026 — afternoon onwards',
+    'updates.beachWhere': 'Salou seafront — exact xiringuito to follow',
+    'updates.beachBody':
+      'Before the big day we’re hosting a laid-back welcome at a Salou beach-bar (xiringuito) — drinks, snacks, sand between your toes. Come say hi, ease into the weekend and meet other guests. Dress code is whatever you’d wear to the beach. We’ll post the exact bar and arrival time here as soon as it’s pinned down.',
+    'updates.timelineTitle': 'Wedding day timeline',
+    'updates.timelineBody':
+      'Here we’ll share a rough timeline of the big day, so you can be part of every moment with us. All the details will be coming soon 🥳',
 
     // Info / venue / gifts / questions
     'info.title': 'Practical Info',
@@ -155,7 +171,15 @@ export const translations: Translations = {
 
     'hero.welcome': '¡Nos casamos!',
     'hero.dateLocation': '25 de septiembre de 2026 · Salou, Tarragona',
+    'hero.date': 'Viernes, 25 de septiembre de 2026',
+    'hero.time': '15:00 · ceremonia',
+    'hero.place': 'Salou, Tarragona · España',
+    'hero.countdownTitle': 'Hasta el «sí, quiero»',
     'hero.scrollHint': 'Desliza para ver más',
+    'countdown.days': 'Días',
+    'countdown.hours': 'Horas',
+    'countdown.minutes': 'Min',
+    'countdown.seconds': 'Seg',
 
     'welcome.title': '¡Bienvenidos a nuestra boda!',
     'welcome.headline': '¡Nos casamos 💍',
@@ -195,7 +219,15 @@ export const translations: Translations = {
     'updates.title': 'Blog de boda',
     'updates.headline': '¡Atención ⚠️!',
     'updates.body':
-      'No pierdas de vista esta sección, aquí iremos compartiendo las últimas novedades. A medida que se acerque el gran día encontrarás toda la información, incluyendo la hora y el lugar de la pre-boda del jueves (plan relax en xiringuito de playa) y la hora a la que conviene llegar el viernes para que todo fluya perfectamente.',
+      'Te recomendamos no perder de vista esta sección, ya que aquí iremos compartiendo las últimas novedades sobre la organización de la boda. A medida que se acerque el gran día, encontrarás aquí toda la información actualizada, incluyendo la hora y el lugar de la pre-boda del jueves (plan relax — xiringuito en la playa), por si te apetece pasarte y compartir un rato con nosotros y otros invitados. También indicaremos la hora a la que deberás llegar el viernes, día de la boda, para que todo fluya perfectamente.',
+    'updates.beachTitle': 'Pre-boda del jueves · Xiringuito en la playa 🏖️',
+    'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — desde la tarde',
+    'updates.beachWhere': 'Paseo marítimo de Salou — confirmaremos el xiringuito exacto',
+    'updates.beachBody':
+      'Antes del gran día queremos invitaros a un encuentro relajado en un xiringuito de Salou: bebidas, picoteo y arena entre los dedos. Pasaos a saludar, id soltando el cuerpo para el finde y conoced a otros invitados. Como código de vestimenta, lo que llevarías a la playa. Publicaremos aquí el bar exacto y la hora de llegada en cuanto lo cerremos.',
+    'updates.timelineTitle': 'Timeline del día',
+    'updates.timelineBody':
+      'Aquí compartiremos un breve resumen del timeline del gran día, para que puedas acompañarnos en cada momento. Pronto tendrás todos los detalles 🥳',
 
     'info.title': 'Información práctica',
     'info.venueLabel': 'Lugar',
