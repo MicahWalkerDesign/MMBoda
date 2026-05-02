@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useI18n } from '../lib/i18n';
 import LangToggle from './LangToggle';
+import { asset } from '../lib/paths';
 
 export default function Navbar() {
     const { t } = useI18n();
@@ -40,7 +41,7 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group" onClick={handleNavClick}>
                     <Image
-                        src="/images/Logo.png"
+                        src={asset('/images/Logo.png')}
                         alt="M&M Wedding"
                         width={44}
                         height={44}

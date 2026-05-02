@@ -213,10 +213,7 @@ export default function RsvpModal({
                     />
                     <Choice
                       active={attending === 'no'}
-                      onClick={() => {
-                        setAttending('no');
-                        setMeal('');
-                      }}
+                      onClick={() => setAttending('no')}
                       label={t('rsvp.notAttending')}
                       icon="✕"
                       tone="fuchsia"
@@ -224,48 +221,46 @@ export default function RsvpModal({
                   </div>
                 </div>
 
-                {/* Meal — only when attending */}
-                {attending === 'yes' && (
-                  <div className="animate-fade-in">
-                    <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
-                      {t('rsvp.meal')}
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Choice
-                        active={meal === 'meat'}
-                        onClick={() => setMeal('meat')}
-                        label={t('rsvp.meat')}
-                        icon="🥩"
-                        tone="terracotta"
-                      />
-                      <Choice
-                        active={meal === 'fish'}
-                        onClick={() => setMeal('fish')}
-                        label={t('rsvp.fish')}
-                        icon="🐟"
-                        tone="terracotta"
-                      />
-                    </div>
-
-                    {/* Dietary */}
-                    <div className="mt-3">
-                      <label className="block text-xs font-medium text-coffee/60 mb-1 font-[family-name:var(--font-poppins)]">
-                        {t('rsvp.dietary')}{' '}
-                        <span className="text-coffee/30">{t('upload.optional')}</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={dietary}
-                        onChange={(e) => setDietary(e.target.value)}
-                        placeholder={t('rsvp.dietaryPlaceholder')}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white/60 border border-terracotta/15 text-sm text-coffee placeholder:text-coffee/25 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/30 transition-all shadow-sm"
-                      />
-                      <p className="text-[11px] text-coffee/40 mt-1 leading-snug">
-                        {t('rsvp.dietaryHelp')}
-                      </p>
-                    </div>
+                {/* Meal — always visible */}
+                <div>
+                  <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
+                    {t('rsvp.meal')}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Choice
+                      active={meal === 'meat'}
+                      onClick={() => setMeal('meat')}
+                      label={t('rsvp.meat')}
+                      icon="🥩"
+                      tone="terracotta"
+                    />
+                    <Choice
+                      active={meal === 'fish'}
+                      onClick={() => setMeal('fish')}
+                      label={t('rsvp.fish')}
+                      icon="🐟"
+                      tone="terracotta"
+                    />
                   </div>
-                )}
+                </div>
+
+                {/* Dietary */}
+                <div>
+                  <label className="block text-xs font-medium text-coffee/60 mb-1 font-[family-name:var(--font-poppins)]">
+                    {t('rsvp.dietary')}{' '}
+                    <span className="text-coffee/30">{t('upload.optional')}</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={dietary}
+                    onChange={(e) => setDietary(e.target.value)}
+                    placeholder={t('rsvp.dietaryPlaceholder')}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/60 border border-terracotta/15 text-sm text-coffee placeholder:text-coffee/25 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/30 transition-all shadow-sm"
+                  />
+                  <p className="text-[11px] text-coffee/40 mt-1 leading-snug">
+                    {t('rsvp.dietaryHelp')}
+                  </p>
+                </div>
 
                 {/* Message */}
                 <div>

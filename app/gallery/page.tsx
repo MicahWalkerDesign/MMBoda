@@ -4,18 +4,19 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Lightbox from '../../components/Lightbox';
 import { useI18n } from '../../lib/i18n';
+import { asset } from '../../lib/paths';
 
 const PHOTOS = [
-    '/images/IMG_2283.jpeg',
-    '/images/IMG_2289.jpeg',
-    '/images/IMG_2290.jpeg',
-    '/images/IMG_2310.jpeg',
-    '/images/IMG_2313.jpeg',
-    '/images/IMG_2314.jpeg',
-    '/images/IMG_2326.jpeg',
-    '/images/IMG_2357.jpeg',
-    '/images/IMG_2374.jpeg',
-    '/images/IMG_2388.jpeg',
+    asset('/images/IMG_2283.jpeg'),
+    asset('/images/IMG_2289.jpeg'),
+    asset('/images/IMG_2290.jpeg'),
+    asset('/images/IMG_2310.jpeg'),
+    asset('/images/IMG_2313.jpeg'),
+    asset('/images/IMG_2314.jpeg'),
+    asset('/images/IMG_2326.jpeg'),
+    asset('/images/IMG_2357.jpeg'),
+    asset('/images/IMG_2374.jpeg'),
+    asset('/images/IMG_2388.jpeg'),
 ];
 
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
