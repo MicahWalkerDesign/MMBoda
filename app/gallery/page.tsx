@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Lightbox from '../../components/Lightbox';
 import { useI18n } from '../../lib/i18n';
 import { asset } from '../../lib/paths';
+import {
+    GALLERY_REFRESH_MS,
+    driveThumb,
+    fetchLivePhotos,
+    type DrivePhoto,
+} from '../../lib/galleryFeed';
 
-const PHOTOS = [
+const FALLBACK_PHOTOS = [
     asset('/images/IMG_2290.jpeg'),
     asset('/images/IMG_2310.jpeg'),
     asset('/images/IMG_2313.jpeg'),
@@ -21,6 +27,31 @@ const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH
 export default function GalleryPage() {
     const { t } = useI18n();
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
+
+    // Pull from Drive on mount, then refresh every 15 min.
+    useEffect(() => {
+        const controller = new AbortController();
+        let cancelled = false;
+        const load = async () => {
+            const photos = await fetchLivePhotos(controller.signal);
+            if (!cancelled) setLivePhotos(photos);
+        };
+        load();
+        const id = setInterval(load, GALLERY_REFRESH_MS);
+        return () => {
+            cancelled = true;
+            controller.abort();
+            clearInterval(id);
+        };
+    }, []);
+
+    const isLive = livePhotos !== null && livePhotos.length > 0;
+
+    const images = useMemo<string[]>(() => {
+        if (isLive && livePhotos) return livePhotos.map((p) => driveThumb(p.id, 1600));
+        return FALLBACK_PHOTOS;
+    }, [isLive, livePhotos]);
 
     return (
         <div className="min-h-dvh px-4 py-8 max-w-lg mx-auto space-y-6">
@@ -29,12 +60,15 @@ export default function GalleryPage() {
                     {t('gallery.title')}
                 </h1>
                 <p className="text-sm text-coffee/60">{t('gallery.subtitleStandalone')}</p>
+                <p className="text-[11px] text-coffee/45 pt-1">
+                    {isLive ? t('gallery.live') : t('gallery.fallbackNote')}
+                </p>
             </div>
 
             <div className="columns-2 gap-3 space-y-3 animate-fade-in-up opacity-0 delay-100">
-                {PHOTOS.map((src, i) => (
+                {images.map((src, i) => (
                     <button
-                        key={i}
+                        key={`${src}-${i}`}
                         onClick={() => setLightboxIndex(i)}
                         className="block w-full rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group break-inside-avoid"
                         style={{ animationDelay: `${0.1 + i * 0.05}s` }}
@@ -47,6 +81,7 @@ export default function GalleryPage() {
                                 height={i % 3 === 0 ? 500 : i % 3 === 1 ? 350 : 420}
                                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                 sizes="(max-width: 640px) 50vw, 250px"
+                                unoptimized={isLive}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-coffee/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
                                 <span className="glass rounded-full px-3 py-1 text-xs text-white font-medium">
@@ -77,7 +112,7 @@ export default function GalleryPage() {
 
             {lightboxIndex !== null && (
                 <Lightbox
-                    images={PHOTOS}
+                    images={images}
                     initialIndex={lightboxIndex}
                     onClose={() => setLightboxIndex(null)}
                 />

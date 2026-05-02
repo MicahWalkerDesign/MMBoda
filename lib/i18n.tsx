@@ -145,6 +145,9 @@ export const translations: Translations = {
     'gallery.viewAllLong': 'View All Photos on Google Drive',
     'gallery.view': 'View',
     'gallery.noSignin': 'Opens Google Drive — no sign-in needed',
+    'gallery.live': 'Live · updates as guests upload',
+    'gallery.fallbackNote': 'Engagement photos for now — wedding uploads will appear here',
+    'gallery.loading': 'Loading photos…',
 
     // Upload page (standalone)
     'upload.subtitleStandalone':
@@ -293,6 +296,9 @@ export const translations: Translations = {
     'gallery.viewAllLong': 'Ver todas las fotos en Google Drive',
     'gallery.view': 'Ver',
     'gallery.noSignin': 'Abre Google Drive — sin registro',
+    'gallery.live': 'En directo · se actualiza con cada subida',
+    'gallery.fallbackNote': 'De momento las fotos del compromiso — las de la boda aparecerán aquí',
+    'gallery.loading': 'Cargando fotos…',
 
     'upload.subtitleStandalone':
       '¡Ayúdanos a capturar cada momento! Sube tus fotos de la celebración y aparecerán directamente en nuestro álbum compartido.',
