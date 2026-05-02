@@ -1,0 +1,530 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import GlassCard from '../components/GlassCard';
+import PhotoCarousel from '../components/PhotoCarousel';
+import PhotoDropzone, { FileWithPreview } from '../components/PhotoDropzone';
+import Lightbox from '../components/Lightbox';
+import RsvpModal, { readStoredRsvp, RsvpData } from '../components/RsvpModal';
+import { useI18n } from '../lib/i18n';
+
+const ENGAGEMENT_PHOTOS = [
+  '/images/IMG_2283.jpeg',
+  '/images/IMG_2289.jpeg',
+  '/images/IMG_2290.jpeg',
+  '/images/IMG_2310.jpeg',
+  '/images/IMG_2313.jpeg',
+  '/images/IMG_2314.jpeg',
+  '/images/IMG_2326.jpeg',
+  '/images/IMG_2357.jpeg',
+  '/images/IMG_2374.jpeg',
+  '/images/IMG_2388.jpeg',
+];
+
+const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
+// Replace with your deployed Google Apps Script Web App URL
+const SCRIPT_URL = 'YOUR_DEPLOYED_WEB_APP_URL';
+
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+
+const EVENT_KEYS = [
+  { time: '14:00', key: 'e1', icon: '🥂' },
+  { time: '15:00', key: 'e2', icon: '💍', highlight: true },
+  { time: '16:00', key: 'e3', icon: '🍹' },
+  { time: '17:30', key: 'e4', icon: '🍽️' },
+  { time: '20:00', key: 'e5', icon: '💃' },
+  { time: '00:00', key: 'e6', icon: '🌮' },
+];
+
+const IBAN_VALUE = 'ES10 0081 0169 3600 0658 5164';
+
+export default function HomePage() {
+  const { t } = useI18n();
+
+  // RSVP modal state
+  const [rsvpOpen, setRsvpOpen] = useState(false);
+  const [storedRsvp, setStoredRsvp] = useState<RsvpData | null>(null);
+
+  // Photo upload state
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [guestName, setGuestName] = useState('');
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+  const [uploadCount, setUploadCount] = useState(0);
+
+  // IBAN copy
+  const [ibanCopied, setIbanCopied] = useState(false);
+
+  // Auto-open the RSVP modal on first visit (after a short delay so the hero is visible)
+  useEffect(() => {
+    const existing = readStoredRsvp();
+    setStoredRsvp(existing);
+    if (!existing) {
+      const timer = setTimeout(() => setRsvpOpen(true), 900);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleRsvpSubmitted = (data: RsvpData) => {
+    setStoredRsvp(data);
+  };
+
+  const copyIban = async () => {
+    try {
+      await navigator.clipboard.writeText(IBAN_VALUE);
+      setIbanCopied(true);
+      setTimeout(() => setIbanCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleUpload = async (files: FileWithPreview[]) => {
+    setUploadStatus('uploading');
+    let successCount = 0;
+
+    try {
+      for (const { base64, file } of files) {
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              file: base64,
+              filename: guestName ? `${guestName}_${file.name}` : `guest_${file.name}`,
+              filetype: file.type,
+            }),
+          });
+          successCount++;
+        } catch {
+          console.error(`Failed to upload ${file.name}`);
+        }
+      }
+
+      if (successCount > 0) {
+        setUploadCount((prev) => prev + successCount);
+        setUploadStatus('success');
+        setTimeout(() => setUploadStatus('idle'), 4000);
+      } else {
+        setUploadStatus('error');
+        setTimeout(() => setUploadStatus('idle'), 4000);
+      }
+    } catch {
+      setUploadStatus('error');
+      setTimeout(() => setUploadStatus('idle'), 4000);
+    }
+  };
+
+  const uploadedText =
+    uploadCount === 1
+      ? t('upload.counted', { n: uploadCount })
+      : t('upload.countedPlural', { n: uploadCount });
+
+  return (
+    <div className="min-h-dvh overflow-x-hidden">
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative min-h-[60dvh] flex flex-col items-center justify-center px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/IMG_2283.jpeg"
+            alt="Mónica & Micah"
+            fill
+            className="object-cover object-top"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-cream/40 via-cream/30 to-cream" />
+        </div>
+
+        <div className="relative z-10 text-center w-full max-w-sm mx-auto space-y-4 py-8">
+          <div className="animate-fade-in-up opacity-0">
+            <Image
+              src="/images/Logo.png"
+              alt="M&M Wedding Logo"
+              width={120}
+              height={120}
+              className="mx-auto drop-shadow-lg animate-float"
+              priority
+            />
+          </div>
+
+          <div className="animate-fade-in-up opacity-0 delay-100 space-y-1">
+            <h1 className="font-[family-name:var(--font-script)] text-3xl sm:text-4xl text-terracotta leading-tight">
+              Mónica & Micah
+            </h1>
+            <p className="text-sm text-coffee/60 font-medium tracking-wide">
+              {t('hero.welcome')}
+            </p>
+          </div>
+
+          <div className="animate-fade-in-up opacity-0 delay-200">
+            <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs sm:text-sm font-medium text-sage-dark">
+              <svg className="w-3.5 h-3.5 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {t('hero.dateLocation')}
+            </span>
+          </div>
+
+          <div className="animate-fade-in-up opacity-0 delay-300 pt-1">
+            <a
+              href="#rsvp"
+              className="inline-flex items-center gap-1.5 text-xs text-coffee/40 hover:text-terracotta transition-colors"
+            >
+              <span>{t('hero.scrollHint')}</span>
+              <svg className="w-3.5 h-3.5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== WELCOME / INTRO ===== */}
+      <section className="px-6 py-10">
+        <div className="max-w-sm mx-auto">
+          <GlassCard delay={0.1}>
+            <div className="text-center space-y-3">
+              <p className="font-[family-name:var(--font-script)] text-2xl text-terracotta leading-none">
+                {t('welcome.title')}
+              </p>
+              <h2 className="font-[family-name:var(--font-poppins)] text-base font-semibold text-coffee">
+                {t('welcome.headline')}
+              </h2>
+              <p className="text-xs text-coffee/55 leading-relaxed">{t('welcome.body')}</p>
+              <p className="text-xs text-fuchsia-dark font-semibold">{t('welcome.cta')}</p>
+              <p className="text-xs text-coffee/55 italic">{t('welcome.signoff')}</p>
+            </div>
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* ===== RSVP SECTION ===== */}
+      <section id="rsvp" className="px-6 py-10 scroll-mt-20">
+        <div className="max-w-sm mx-auto space-y-4">
+          <div className="text-center space-y-1.5 animate-fade-in-up opacity-0">
+            <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+              💌 {t('rsvp.title')}
+            </h2>
+            <p className="text-xs text-coffee/55 leading-relaxed px-2">{t('rsvp.subtitle')}</p>
+          </div>
+
+          <GlassCard delay={0.1}>
+            {storedRsvp ? (
+              <div className="text-center space-y-2">
+                <div className="text-3xl">{storedRsvp.attending === 'yes' ? '🎉' : '💛'}</div>
+                <p className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-sage-dark">
+                  {t('rsvp.thanks')}
+                </p>
+                <p className="text-xs text-coffee/55">
+                  {storedRsvp.firstName} {storedRsvp.lastName} —{' '}
+                  {storedRsvp.attending === 'yes'
+                    ? `${t('rsvp.attending')}${storedRsvp.meal ? ' · ' + (storedRsvp.meal === 'meat' ? t('rsvp.meat') : t('rsvp.fish')) : ''}`
+                    : t('rsvp.notAttending')}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setRsvpOpen(true)}
+                  className="text-xs text-terracotta hover:text-terracotta-dark font-semibold underline-offset-2 hover:underline transition-colors"
+                >
+                  {t('rsvp.edit')}
+                </button>
+              </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-xs text-coffee/55 leading-relaxed">{t('welcome.cta')}</p>
+                <button
+                  type="button"
+                  onClick={() => setRsvpOpen(true)}
+                  className="w-full bg-terracotta text-white rounded-xl px-5 py-3 text-sm font-semibold font-[family-name:var(--font-poppins)] shadow-lg shadow-terracotta/20 hover:bg-terracotta-dark active:scale-[0.98] transition-all"
+                >
+                  {t('rsvp.openButton')}
+                </button>
+              </div>
+            )}
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* ===== DIVIDER ===== */}
+      <div className="max-w-[200px] mx-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-terracotta/15 to-transparent" />
+      </div>
+
+      {/* ===== UPDATES / BLOG ===== */}
+      <section id="updates" className="px-6 py-10 scroll-mt-20">
+        <div className="max-w-sm mx-auto space-y-4">
+          <div className="text-center space-y-1.5 animate-fade-in-up opacity-0">
+            <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+              📝 {t('updates.title')}
+            </h2>
+          </div>
+          <GlassCard delay={0.1}>
+            <div className="space-y-2">
+              <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee">
+                {t('updates.headline')}
+              </h3>
+              <p className="text-xs text-coffee/55 leading-relaxed">{t('updates.body')}</p>
+            </div>
+          </GlassCard>
+
+          {/* Practical info */}
+          <GlassCard delay={0.2}>
+            <div className="space-y-3">
+              <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee text-center">
+                📍 {t('info.title')}
+              </h3>
+              <InfoRow label={t('info.dateLabel')} value={t('info.date')} />
+              <InfoRow label={t('info.venueLabel')} value={t('info.venue')} />
+              <p className="text-[11px] text-coffee/50 leading-relaxed pt-1 border-t border-terracotta/10">
+                🏖️ {t('info.preWedding')}
+              </p>
+            </div>
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* ===== DIVIDER ===== */}
+      <div className="max-w-[200px] mx-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-terracotta/15 to-transparent" />
+      </div>
+
+      {/* ===== ITINERARY SECTION ===== */}
+      <section id="itinerary" className="px-6 py-10 scroll-mt-20">
+        <div className="max-w-sm mx-auto space-y-5">
+          <div className="text-center space-y-1.5 animate-fade-in-up opacity-0">
+            <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+              🗓️ {t('day.title')}
+            </h2>
+            <p className="text-xs text-coffee/50">{t('day.subtitle')}</p>
+          </div>
+
+          <div className="relative pl-10 space-y-0">
+            <div className="absolute left-[15px] top-7 bottom-7 w-0.5 bg-gradient-to-b from-terracotta/30 via-fuchsia/20 to-sage/20 rounded-full" />
+
+            {EVENT_KEYS.map((event, i) => (
+              <div
+                key={event.key}
+                className="relative pb-4 last:pb-0 animate-fade-in-up opacity-0"
+                style={{ animationDelay: `${0.1 + i * 0.08}s` }}
+              >
+                <div
+                  className={`absolute -left-10 top-4 w-7 h-7 rounded-full flex items-center justify-center text-sm z-10 ${event.highlight ? 'bg-fuchsia shadow-lg shadow-fuchsia/25 scale-110' : 'glass'
+                    }`}
+                >
+                  {event.icon}
+                </div>
+
+                <GlassCard
+                  heavy={event.highlight}
+                  animate={false}
+                  className={`!p-3.5 ${event.highlight ? '!border-fuchsia/15' : ''}`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee">
+                        {t(`day.${event.key}.title`)}
+                      </h3>
+                      <p className="text-xs text-coffee/45 mt-0.5 leading-relaxed">
+                        {t(`day.${event.key}.desc`)}
+                      </p>
+                    </div>
+                    <span className="flex-none text-[11px] font-bold text-terracotta bg-terracotta/8 rounded-full px-2 py-0.5 mt-0.5">
+                      {event.time}
+                    </span>
+                  </div>
+                </GlassCard>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-[11px] text-coffee/40 pt-1">⏰ {t('day.note')}</p>
+        </div>
+      </section>
+
+      {/* ===== DIVIDER ===== */}
+      <div className="max-w-[200px] mx-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-terracotta/15 to-transparent" />
+      </div>
+
+      {/* ===== GIFTS ===== */}
+      <section id="gifts" className="px-6 py-10 scroll-mt-20">
+        <div className="max-w-sm mx-auto space-y-4">
+          <div className="text-center space-y-1.5 animate-fade-in-up opacity-0">
+            <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+              🎁 {t('gifts.title')}
+            </h2>
+          </div>
+          <GlassCard delay={0.1}>
+            <div className="space-y-3 text-center">
+              <p className="text-xs text-coffee/55 leading-relaxed">{t('gifts.body')}</p>
+              <div className="bg-white/50 border border-terracotta/15 rounded-xl px-3 py-3 space-y-1.5">
+                <p className="text-xs font-semibold text-coffee">{t('gifts.holder')}</p>
+                <p className="text-[11px] font-mono text-coffee/70 break-all">{t('gifts.iban')}</p>
+                <button
+                  type="button"
+                  onClick={copyIban}
+                  className="text-[11px] text-terracotta hover:text-terracotta-dark font-semibold transition-colors"
+                >
+                  {ibanCopied ? `✓ ${t('gifts.copied')}` : `📋 ${t('gifts.copy')}`}
+                </button>
+              </div>
+              <p className="text-xs text-coffee/55 italic">{t('gifts.thanks')}</p>
+            </div>
+          </GlassCard>
+
+          {/* Questions */}
+          <GlassCard delay={0.2}>
+            <div className="text-center space-y-2">
+              <h3 className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-coffee">
+                💬 {t('questions.title')}
+              </h3>
+              <p className="text-xs text-coffee/55 leading-relaxed">{t('questions.body')}</p>
+            </div>
+          </GlassCard>
+        </div>
+      </section>
+
+      {/* ===== DIVIDER ===== */}
+      <div className="max-w-[200px] mx-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-terracotta/15 to-transparent" />
+      </div>
+
+      {/* ===== GALLERY / CAROUSEL SECTION ===== */}
+      <section id="gallery" className="py-10 scroll-mt-20">
+        <div className="px-6 text-center space-y-1.5 animate-fade-in-up opacity-0 mb-5">
+          <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+            🖼️ {t('gallery.title')}
+          </h2>
+          <p className="text-xs text-coffee/50">{t('gallery.subtitle')}</p>
+        </div>
+
+        <div className="animate-fade-in-up opacity-0 delay-200 px-4">
+          <PhotoCarousel
+            images={ENGAGEMENT_PHOTOS}
+            onImageClick={(i) => setLightboxIndex(i)}
+          />
+        </div>
+
+        <div className="text-center px-6 mt-6 animate-fade-in-up opacity-0 delay-300">
+          <a
+            href={DRIVE_FOLDER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-terracotta text-white rounded-xl px-5 py-3 text-sm font-semibold font-[family-name:var(--font-poppins)] shadow-lg shadow-terracotta/20 hover:bg-terracotta-dark active:scale-[0.98] transition-all"
+          >
+            {t('gallery.viewAll')}
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
+          <p className="text-[11px] text-coffee/30 mt-2">{t('gallery.noSignin')}</p>
+        </div>
+      </section>
+
+      {/* ===== DIVIDER ===== */}
+      <div className="max-w-[200px] mx-auto">
+        <div className="h-px bg-gradient-to-r from-transparent via-terracotta/15 to-transparent" />
+      </div>
+
+      {/* ===== UPLOAD SECTION ===== */}
+      <section id="upload" className="px-6 py-10 scroll-mt-20">
+        <div className="max-w-sm mx-auto space-y-4">
+          <div className="text-center space-y-1.5 animate-fade-in-up opacity-0">
+            <h2 className="font-[family-name:var(--font-poppins)] text-lg font-semibold text-terracotta">
+              📸 {t('upload.title')}
+            </h2>
+            <p className="text-xs text-coffee/50 leading-relaxed px-2">{t('upload.subtitle')}</p>
+          </div>
+
+          <GlassCard delay={0.1}>
+            <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
+              {t('upload.nameLabel')} <span className="text-coffee/30">{t('upload.optional')}</span>
+            </label>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder={t('upload.namePlaceholder')}
+              className="w-full px-4 py-3 rounded-xl bg-white/60 border border-terracotta/15
+                text-sm text-coffee placeholder:text-coffee/25
+                focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/30
+                transition-all shadow-sm"
+            />
+          </GlassCard>
+
+          <GlassCard delay={0.2}>
+            <PhotoDropzone onUpload={handleUpload} isUploading={uploadStatus === 'uploading'} />
+          </GlassCard>
+
+          {uploadStatus === 'success' && (
+            <div className="glass rounded-2xl p-4 text-center animate-fade-in-up border-sage/30 border">
+              <div className="text-2xl mb-1">🎉</div>
+              <p className="text-sm font-semibold text-sage-dark font-[family-name:var(--font-poppins)]">
+                {t('upload.success')}
+              </p>
+              <p className="text-xs text-coffee/50 mt-0.5">{t('upload.successDesc')}</p>
+            </div>
+          )}
+
+          {uploadStatus === 'error' && (
+            <div className="glass rounded-2xl p-4 text-center animate-fade-in-up border-fuchsia/30 border">
+              <div className="text-2xl mb-1">😕</div>
+              <p className="text-sm font-semibold text-fuchsia-dark font-[family-name:var(--font-poppins)]">
+                {t('upload.error')}
+              </p>
+              <p className="text-xs text-coffee/50 mt-0.5">{t('upload.errorDesc')}</p>
+            </div>
+          )}
+
+          {uploadCount > 0 && (
+            <div className="text-center animate-fade-in">
+              <p className="text-xs text-coffee/35">
+                {uploadedText.split(String(uploadCount))[0]}
+                <span className="font-semibold text-terracotta">{uploadCount}</span>
+                {uploadedText.split(String(uploadCount))[1]} 📸
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="text-center py-10 px-6 border-t border-terracotta/8">
+        <p className="font-[family-name:var(--font-script)] text-xl text-terracotta/40">M & M</p>
+        <p className="text-[10px] text-coffee/25 mt-1">{t('footer.tag')}</p>
+      </footer>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={ENGAGEMENT_PHOTOS}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
+
+      {/* RSVP Modal */}
+      <RsvpModal
+        open={rsvpOpen}
+        onClose={() => setRsvpOpen(false)}
+        onSubmitted={handleRsvpSubmitted}
+        initial={storedRsvp ?? undefined}
+        dismissible
+      />
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-2 text-left">
+      <span className="text-[11px] uppercase tracking-wide text-coffee/45 font-semibold w-16 flex-none font-[family-name:var(--font-poppins)]">
+        {label}
+      </span>
+      <span className="text-xs text-coffee/70 leading-relaxed">{value}</span>
+    </div>
+  );
+}

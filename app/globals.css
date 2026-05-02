@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Great+Vibes&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  /* Wedding Palette - Mediterranean Warmth */
+  --color-terracotta: #D36A2E;
+  --color-terracotta-light: #E8945E;
+  --color-terracotta-dark: #A85220;
+  --color-fuchsia: #D64B78;
+  --color-fuchsia-light: #E27A9D;
+  --color-fuchsia-dark: #B03560;
+  --color-sage: #7A8F3A;
+  --color-sage-light: #9DB45C;
+  --color-sage-dark: #5F6E2D;
+  --color-gold: #F2B84B;
+  --color-gold-light: #F5CC78;
+  --color-gold-dark: #D99E2E;
+  --color-cream: #FBF5EC;
+  --color-cream-dark: #F0E4D0;
+  --color-coffee: #2F2722;
+  --color-coffee-light: #4A3F38;
+
+  /* Glass tokens */
+  --color-glass-bg: rgba(251, 245, 236, 0.65);
+  --color-glass-border: rgba(255, 255, 255, 0.4);
+  --color-glass-bg-heavy: rgba(251, 245, 236, 0.85);
+
+  /* Fonts */
+  --font-poppins: 'Poppins', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-script: 'Great Vibes', cursive;
+}
+
+/* Base styles - Mobile first */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-inter);
+  color: var(--color-coffee);
+  background: var(--color-cream);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Warm gradient background */
+.bg-wedding-gradient {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(211, 106, 46, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(214, 75, 120, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(122, 143, 58, 0.05) 0%, transparent 50%),
+    var(--color-cream);
+}
+
+/* Glass card */
+.glass {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 8px 32px rgba(47, 39, 34, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.glass-heavy {
+  background: var(--color-glass-bg-heavy);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 8px 32px rgba(47, 39, 34, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-terracotta-light);
+  border-radius: 999px;
+}
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 33%, rgba(255, 255, 255, 0.3) 50%, transparent 66%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Stagger delays */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Touch-friendly */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dropzone */
+.dropzone-active {
+  border-color: var(--color-terracotta) !important;
+  background: rgba(211, 106, 46, 0.08) !important;
+}
