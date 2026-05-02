@@ -7,7 +7,7 @@ const STORAGE_KEY = 'mm-wedding-rsvp';
 
 // Same Google Apps Script endpoint used by the photo uploader.
 // The script can branch on the `type` field to write RSVPs to a sheet.
-const SCRIPT_URL = 'YOUR_DEPLOYED_WEB_APP_URL';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAkmszoeZ_Fz2jpylO3fmNxCCzz2dzQKTezYvAoFvwfNJon4JLQVdGpi0_Bf44Sq0/exec';
 
 export interface RsvpData {
   firstName: string;
@@ -86,15 +86,12 @@ export default function RsvpModal({
 
     try {
       // Best-effort POST to Apps Script (no-cors -> response is opaque).
-      // If SCRIPT_URL isn't configured yet, we still save locally so the form works.
-      if (SCRIPT_URL && SCRIPT_URL !== 'YOUR_DEPLOYED_WEB_APP_URL') {
-        await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ type: 'rsvp', ...data }),
-        });
-      }
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'rsvp', ...data }),
+      });
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch {

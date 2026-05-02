@@ -6,7 +6,7 @@ import PhotoDropzone, { FileWithPreview } from '../../components/PhotoDropzone';
 import { useI18n } from '../../lib/i18n';
 
 // Replace with your deployed Google Apps Script Web App URL
-const SCRIPT_URL = 'YOUR_DEPLOYED_WEB_APP_URL';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAkmszoeZ_Fz2jpylO3fmNxCCzz2dzQKTezYvAoFvwfNJon4JLQVdGpi0_Bf44Sq0/exec';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
