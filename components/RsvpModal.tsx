@@ -13,7 +13,7 @@ export interface RsvpData {
   firstName: string;
   lastName: string;
   attending: 'yes' | 'no';
-  meal: 'meat' | 'fish' | '';
+  meal: 'meat' | 'fish' | 'vegetarian' | '';
   dietary: string;
   message: string;
   submittedAt: string;
@@ -41,7 +41,7 @@ export default function RsvpModal({
   const [firstName, setFirstName] = useState(initial?.firstName ?? '');
   const [lastName, setLastName] = useState(initial?.lastName ?? '');
   const [attending, setAttending] = useState<'yes' | 'no' | ''>(initial?.attending ?? '');
-  const [meal, setMeal] = useState<'meat' | 'fish' | ''>(initial?.meal ?? '');
+  const [meal, setMeal] = useState<'meat' | 'fish' | 'vegetarian' | ''>(initial?.meal ?? '');
   const [dietary, setDietary] = useState(initial?.dietary ?? '');
   const [message, setMessage] = useState(initial?.message ?? '');
   const [status, setStatus] = useState<Status>('idle');
@@ -223,7 +223,7 @@ export default function RsvpModal({
                   <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
                     {t('rsvp.meal')}
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Choice
                       active={meal === 'meat'}
                       onClick={() => setMeal('meat')}
@@ -236,6 +236,13 @@ export default function RsvpModal({
                       onClick={() => setMeal('fish')}
                       label={t('rsvp.fish')}
                       icon="🐟"
+                      tone="terracotta"
+                    />
+                    <Choice
+                      active={meal === 'vegetarian'}
+                      onClick={() => setMeal('vegetarian')}
+                      label={t('rsvp.vegetarian')}
+                      icon="🥦"
                       tone="terracotta"
                     />
                   </div>

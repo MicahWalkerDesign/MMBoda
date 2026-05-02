@@ -50,6 +50,7 @@ export const translations: Translations = {
     'rsvp.meal': 'Main course',
     'rsvp.meat': 'Meat',
     'rsvp.fish': 'Fish',
+    'rsvp.vegetarian': 'Vegetarian',
     'rsvp.dietary': 'Allergies / dietary needs',
     'rsvp.dietaryHelp':
       'Allergies, intolerances, vegetarian or vegan? Tell us so we can take care of every detail 💖',
@@ -201,6 +202,7 @@ export const translations: Translations = {
     'rsvp.meal': 'Plato principal',
     'rsvp.meat': 'Carne',
     'rsvp.fish': 'Pescado',
+    'rsvp.vegetarian': 'Vegetariano',
     'rsvp.dietary': 'Alergias / dieta especial',
     'rsvp.dietaryHelp':
       '¿Alergias, intolerancias, vegetariano o vegano? Cuéntanoslo y cuidaremos cada detalle 💖',
