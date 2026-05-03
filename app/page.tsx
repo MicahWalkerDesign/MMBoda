@@ -236,25 +236,46 @@ export default function HomePage() {
 
           <GlassCard delay={0.1}>
             {storedRsvp ? (
-              <div className="text-center space-y-2">
-                <div className="text-3xl">{storedRsvp.attending === 'yes' ? '🎉' : '💛'}</div>
-                <p className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-sage-dark">
-                  {t('rsvp.thanks')}
-                </p>
-                <p className="text-xs text-coffee/55">
-                  {storedRsvp.firstName} {storedRsvp.lastName} —{' '}
-                  {storedRsvp.attending === 'yes'
-                    ? `${t('rsvp.attending')}${storedRsvp.meal ? ' · ' + (storedRsvp.meal === 'meat' ? t('rsvp.meat') : t('rsvp.fish')) : ''}`
-                    : t('rsvp.notAttending')}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setRsvpOpen(true)}
-                  className="text-xs text-terracotta hover:text-terracotta-dark font-semibold underline-offset-2 hover:underline transition-colors"
-                >
-                  {t('rsvp.edit')}
-                </button>
-              </div>
+              (() => {
+                const primary = storedRsvp.guests[0];
+                const partySize = storedRsvp.guests.length;
+                const anyAttending = storedRsvp.guests.some((g) => g.attending === 'yes');
+                const mealLabel = (m: string) =>
+                  m === 'meat'
+                    ? t('rsvp.meat')
+                    : m === 'fish'
+                      ? t('rsvp.fish')
+                      : m === 'vegetarian'
+                        ? t('rsvp.vegetarian')
+                        : '';
+                return (
+                  <div className="text-center space-y-2">
+                    <div className="text-3xl">{anyAttending ? '🎉' : '💛'}</div>
+                    <p className="font-[family-name:var(--font-poppins)] text-sm font-semibold text-sage-dark">
+                      {t('rsvp.thanks')}
+                    </p>
+                    <p className="text-xs text-coffee/55">
+                      {primary.firstName} {primary.lastName}
+                      {partySize > 1 ? ` +${partySize - 1}` : ''} —{' '}
+                      {primary.attending === 'yes'
+                        ? `${t('rsvp.attending')}${primary.meal ? ' · ' + mealLabel(primary.meal) : ''}`
+                        : t('rsvp.notAttending')}
+                    </p>
+                    {partySize > 1 && (
+                      <p className="text-[11px] text-coffee/40">
+                        {t('rsvp.partySummary', { n: partySize })}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setRsvpOpen(true)}
+                      className="text-xs text-terracotta hover:text-terracotta-dark font-semibold underline-offset-2 hover:underline transition-colors"
+                    >
+                      {t('rsvp.edit')}
+                    </button>
+                  </div>
+                );
+              })()
             ) : (
               <div className="text-center space-y-3">
                 <p className="text-xs text-coffee/55 leading-relaxed">{t('welcome.cta')}</p>

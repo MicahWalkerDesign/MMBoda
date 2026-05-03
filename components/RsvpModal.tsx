@@ -6,17 +6,63 @@ import { useI18n } from '../lib/i18n';
 const STORAGE_KEY = 'mm-wedding-rsvp';
 
 // Same Google Apps Script endpoint used by the photo uploader.
-// The script can branch on the `type` field to write RSVPs to a sheet.
+// The script branches on the `type` field to write RSVPs to a sheet.
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
 
-export interface RsvpData {
+export type Meal = 'meat' | 'fish' | 'vegetarian' | '';
+export type Attending = 'yes' | 'no' | '';
+
+export interface Guest {
   firstName: string;
   lastName: string;
-  attending: 'yes' | 'no';
-  meal: 'meat' | 'fish' | 'vegetarian' | '';
+  attending: Attending;
+  meal: Meal;
   dietary: string;
+}
+
+export interface RsvpData {
+  guests: Guest[];
   message: string;
   submittedAt: string;
+}
+
+// ---- Legacy single-guest shape kept for localStorage migration only ----
+interface LegacyRsvpData {
+  firstName?: string;
+  lastName?: string;
+  attending?: Attending;
+  meal?: Meal;
+  dietary?: string;
+  message?: string;
+  submittedAt?: string;
+}
+
+function emptyGuest(): Guest {
+  return { firstName: '', lastName: '', attending: '', meal: '', dietary: '' };
+}
+
+function migrate(raw: unknown): RsvpData | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.guests)) {
+    return obj as unknown as RsvpData;
+  }
+  // Legacy single-guest record → wrap into guests[0]
+  const legacy = obj as LegacyRsvpData;
+  if (!legacy.firstName && !legacy.lastName) return null;
+  return {
+    guests: [
+      {
+        firstName: legacy.firstName ?? '',
+        lastName: legacy.lastName ?? '',
+        attending: legacy.attending ?? '',
+        meal: legacy.meal ?? '',
+        dietary: legacy.dietary ?? '',
+      },
+    ],
+    message: legacy.message ?? '',
+    submittedAt: legacy.submittedAt ?? new Date().toISOString(),
+  };
 }
 
 type Status = 'idle' | 'sending' | 'success' | 'error';
@@ -37,12 +83,10 @@ export default function RsvpModal({
   initial,
   dismissible = true,
 }: RsvpModalProps) {
-  const { t } = useI18n();
-  const [firstName, setFirstName] = useState(initial?.firstName ?? '');
-  const [lastName, setLastName] = useState(initial?.lastName ?? '');
-  const [attending, setAttending] = useState<'yes' | 'no' | ''>(initial?.attending ?? '');
-  const [meal, setMeal] = useState<'meat' | 'fish' | 'vegetarian' | ''>(initial?.meal ?? '');
-  const [dietary, setDietary] = useState(initial?.dietary ?? '');
+  const { t, lang } = useI18n();
+  const [guests, setGuests] = useState<Guest[]>(
+    initial?.guests && initial.guests.length > 0 ? initial.guests : [emptyGuest()]
+  );
   const [message, setMessage] = useState(initial?.message ?? '');
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -59,25 +103,42 @@ export default function RsvpModal({
 
   if (!open) return null;
 
+  const setGuest = (index: number, patch: Partial<Guest>) => {
+    setGuests((prev) => prev.map((g, i) => (i === index ? { ...g, ...patch } : g)));
+  };
+
+  const addGuest = () => setGuests((prev) => [...prev, emptyGuest()]);
+
+  const removeGuest = (index: number) => {
+    setGuests((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!firstName.trim() || !lastName.trim() || !attending) {
-      setError(t('rsvp.errorRequired'));
-      return;
-    }
-    if (attending === 'yes' && !meal) {
-      setError(t('rsvp.errorRequired'));
-      return;
+    // Validation: every guest needs name + attendance; attending guests need a meal.
+    for (const g of guests) {
+      if (!g.firstName.trim() || !g.lastName.trim() || !g.attending) {
+        setError(t('rsvp.errorRequired'));
+        return;
+      }
+      if (g.attending === 'yes' && !g.meal) {
+        setError(t('rsvp.errorRequired'));
+        return;
+      }
     }
 
+    const cleanedGuests: Guest[] = guests.map((g) => ({
+      firstName: g.firstName.trim(),
+      lastName: g.lastName.trim(),
+      attending: g.attending,
+      meal: g.attending === 'yes' ? g.meal : '',
+      dietary: g.dietary.trim(),
+    }));
+
     const data: RsvpData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      attending,
-      meal: attending === 'yes' ? meal : '',
-      dietary: dietary.trim(),
+      guests: cleanedGuests,
       message: message.trim(),
       submittedAt: new Date().toISOString(),
     };
@@ -85,12 +146,12 @@ export default function RsvpModal({
     setStatus('sending');
 
     try {
-      // Best-effort POST to Apps Script (no-cors -> response is opaque).
+      // Best-effort POST to Apps Script (no-cors → response is opaque, fine).
       await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'rsvp', ...data }),
+        body: JSON.stringify({ type: 'rsvp', ...data, lang }),
       });
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -104,6 +165,8 @@ export default function RsvpModal({
       setError(t('rsvp.errorSend'));
     }
   };
+
+  const anyAttending = guests.some((g) => g.attending === 'yes');
 
   return (
     <div
@@ -126,7 +189,7 @@ export default function RsvpModal({
         <div className="p-5 sm:p-6 space-y-4">
           {status === 'success' ? (
             <div className="text-center space-y-3 py-4">
-              <div className="text-4xl">{attending === 'yes' ? '🎉' : '💛'}</div>
+              <div className="text-4xl">{anyAttending ? '🎉' : '💛'}</div>
               <h2
                 id="rsvp-title"
                 className="font-[family-name:var(--font-poppins)] text-xl font-semibold text-terracotta"
@@ -134,7 +197,10 @@ export default function RsvpModal({
                 {t('rsvp.thanks')}
               </h2>
               <p className="text-sm text-coffee/60 leading-relaxed">
-                {attending === 'yes' ? t('rsvp.thanksAttending') : t('rsvp.thanksDeclined')}
+                {anyAttending ? t('rsvp.thanksAttending') : t('rsvp.thanksDeclined')}
+              </p>
+              <p className="text-xs text-coffee/45">
+                {t('rsvp.partySummary', { n: guests.length })}
               </p>
               <button
                 type="button"
@@ -179,94 +245,28 @@ export default function RsvpModal({
               </div>
 
               <form onSubmit={submit} className="space-y-3.5">
-                {/* Names */}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <Field
-                    label={t('rsvp.firstName')}
-                    value={firstName}
-                    onChange={setFirstName}
-                    required
+                {guests.map((guest, i) => (
+                  <GuestBlock
+                    key={i}
+                    index={i}
+                    guest={guest}
+                    onChange={(patch) => setGuest(i, patch)}
+                    onRemove={i === 0 ? undefined : () => removeGuest(i)}
                   />
-                  <Field
-                    label={t('rsvp.lastName')}
-                    value={lastName}
-                    onChange={setLastName}
-                    required
-                  />
-                </div>
+                ))}
 
-                {/* Attendance */}
-                <div>
-                  <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
-                    {t('rsvp.attendance')}
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Choice
-                      active={attending === 'yes'}
-                      onClick={() => setAttending('yes')}
-                      label={t('rsvp.attending')}
-                      icon="✓"
-                      tone="sage"
-                    />
-                    <Choice
-                      active={attending === 'no'}
-                      onClick={() => setAttending('no')}
-                      label={t('rsvp.notAttending')}
-                      icon="✕"
-                      tone="fuchsia"
-                    />
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={addGuest}
+                  className="w-full rounded-xl border border-dashed border-terracotta/40 text-terracotta hover:border-terracotta hover:bg-terracotta/5 px-4 py-2.5 text-xs font-semibold font-[family-name:var(--font-poppins)] transition-colors"
+                >
+                  {t('rsvp.addGuest')}
+                </button>
+                <p className="text-[11px] text-coffee/40 -mt-1.5 leading-snug text-center">
+                  {t('rsvp.guestNote')}
+                </p>
 
-                {/* Meal — always visible */}
-                <div>
-                  <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
-                    {t('rsvp.meal')}
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Choice
-                      active={meal === 'meat'}
-                      onClick={() => setMeal('meat')}
-                      label={t('rsvp.meat')}
-                      icon="🥩"
-                      tone="terracotta"
-                    />
-                    <Choice
-                      active={meal === 'fish'}
-                      onClick={() => setMeal('fish')}
-                      label={t('rsvp.fish')}
-                      icon="🐟"
-                      tone="terracotta"
-                    />
-                    <Choice
-                      active={meal === 'vegetarian'}
-                      onClick={() => setMeal('vegetarian')}
-                      label={t('rsvp.vegetarian')}
-                      icon="🥦"
-                      tone="terracotta"
-                    />
-                  </div>
-                </div>
-
-                {/* Dietary */}
-                <div>
-                  <label className="block text-xs font-medium text-coffee/60 mb-1 font-[family-name:var(--font-poppins)]">
-                    {t('rsvp.dietary')}{' '}
-                    <span className="text-coffee/30">{t('upload.optional')}</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={dietary}
-                    onChange={(e) => setDietary(e.target.value)}
-                    placeholder={t('rsvp.dietaryPlaceholder')}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/60 border border-terracotta/15 text-sm text-coffee placeholder:text-coffee/25 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/30 transition-all shadow-sm"
-                  />
-                  <p className="text-[11px] text-coffee/40 mt-1 leading-snug">
-                    {t('rsvp.dietaryHelp')}
-                  </p>
-                </div>
-
-                {/* Message */}
+                {/* Shared message */}
                 <div>
                   <label className="block text-xs font-medium text-coffee/60 mb-1 font-[family-name:var(--font-poppins)]">
                     {t('rsvp.message')}
@@ -307,6 +307,122 @@ export default function RsvpModal({
             </>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface GuestBlockProps {
+  index: number;
+  guest: Guest;
+  onChange: (patch: Partial<Guest>) => void;
+  onRemove?: () => void;
+}
+
+function GuestBlock({ index, guest, onChange, onRemove }: GuestBlockProps) {
+  const { t } = useI18n();
+  const heading = index === 0 ? t('rsvp.youLabel') : t('rsvp.guestN', { n: index + 1 });
+
+  return (
+    <div className="rounded-2xl border border-terracotta/15 bg-white/35 p-3.5 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-terracotta/80 font-[family-name:var(--font-poppins)]">
+          {heading}
+        </span>
+        {onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-[11px] text-coffee/45 hover:text-fuchsia-dark transition-colors"
+            aria-label={t('rsvp.removeGuest')}
+          >
+            {t('rsvp.removeGuest')} ✕
+          </button>
+        )}
+      </div>
+
+      {/* Names */}
+      <div className="grid grid-cols-2 gap-2.5">
+        <Field
+          label={t('rsvp.firstName')}
+          value={guest.firstName}
+          onChange={(v) => onChange({ firstName: v })}
+          required
+        />
+        <Field
+          label={t('rsvp.lastName')}
+          value={guest.lastName}
+          onChange={(v) => onChange({ lastName: v })}
+          required
+        />
+      </div>
+
+      {/* Attendance */}
+      <div>
+        <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
+          {t('rsvp.attendance')}
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <Choice
+            active={guest.attending === 'yes'}
+            onClick={() => onChange({ attending: 'yes' })}
+            label={t('rsvp.attending')}
+            icon="✓"
+            tone="sage"
+          />
+          <Choice
+            active={guest.attending === 'no'}
+            onClick={() => onChange({ attending: 'no', meal: '' })}
+            label={t('rsvp.notAttending')}
+            icon="✕"
+            tone="fuchsia"
+          />
+        </div>
+      </div>
+
+      {/* Meal — always visible */}
+      <div>
+        <label className="block text-xs font-medium text-coffee/60 mb-1.5 font-[family-name:var(--font-poppins)]">
+          {t('rsvp.meal')}
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          <Choice
+            active={guest.meal === 'meat'}
+            onClick={() => onChange({ meal: 'meat' })}
+            label={t('rsvp.meat')}
+            icon="🥩"
+            tone="terracotta"
+          />
+          <Choice
+            active={guest.meal === 'fish'}
+            onClick={() => onChange({ meal: 'fish' })}
+            label={t('rsvp.fish')}
+            icon="🐟"
+            tone="terracotta"
+          />
+          <Choice
+            active={guest.meal === 'vegetarian'}
+            onClick={() => onChange({ meal: 'vegetarian' })}
+            label={t('rsvp.vegetarian')}
+            icon="🥦"
+            tone="terracotta"
+          />
+        </div>
+      </div>
+
+      {/* Dietary */}
+      <div>
+        <label className="block text-xs font-medium text-coffee/60 mb-1 font-[family-name:var(--font-poppins)]">
+          {t('rsvp.dietary')}{' '}
+          <span className="text-coffee/30">{t('upload.optional')}</span>
+        </label>
+        <input
+          type="text"
+          value={guest.dietary}
+          onChange={(e) => onChange({ dietary: e.target.value })}
+          placeholder={t('rsvp.dietaryPlaceholder')}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/60 border border-terracotta/15 text-sm text-coffee placeholder:text-coffee/25 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/30 transition-all shadow-sm"
+        />
       </div>
     </div>
   );
@@ -374,7 +490,7 @@ export function readStoredRsvp(): RsvpData | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as RsvpData;
+    return migrate(JSON.parse(raw));
   } catch {
     return null;
   }

@@ -67,6 +67,12 @@ export const translations: Translations = {
     'rsvp.errorSend': 'Something went wrong. Please try again.',
     'rsvp.skip': 'Maybe later',
     'rsvp.openButton': 'Open RSVP form',
+    'rsvp.guestN': 'Guest {n}',
+    'rsvp.youLabel': 'You',
+    'rsvp.addGuest': '+ Add another guest',
+    'rsvp.removeGuest': 'Remove',
+    'rsvp.guestNote': 'Add a partner, child, or anyone you’re replying for.',
+    'rsvp.partySummary': 'Party of {n}',
 
     // Updates / Blog
     'updates.title': 'Wedding Blog',
@@ -222,6 +228,12 @@ export const translations: Translations = {
     'rsvp.errorSend': 'Algo salió mal. Inténtalo de nuevo.',
     'rsvp.skip': 'Quizá más tarde',
     'rsvp.openButton': 'Abrir formulario',
+    'rsvp.guestN': 'Invitado/a {n}',
+    'rsvp.youLabel': 'Tú',
+    'rsvp.addGuest': '+ Añadir otro invitado',
+    'rsvp.removeGuest': 'Quitar',
+    'rsvp.guestNote': 'Añade a tu pareja, hijos o quien responda contigo.',
+    'rsvp.partySummary': 'Grupo de {n}',
 
     'updates.title': 'Blog de boda',
     'updates.headline': '¡Atención ⚠️!',
