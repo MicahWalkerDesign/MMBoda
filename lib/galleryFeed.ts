@@ -23,9 +23,14 @@ interface FeedResponse {
   photos?: DrivePhoto[];
 }
 
-/** Public Drive thumbnail URL — works because the folder is link-shareable. */
+/**
+ * Public Drive image URL via the underlying googleusercontent CDN.
+ * lh3.googleusercontent.com hotlinks more reliably than drive.google.com/thumbnail
+ * (no redirect, no Drive UI session checks). Works for any file shared
+ * "Anyone with the link → Viewer".
+ */
 export function driveThumb(id: string, width = 1200): string {
-  return `https://drive.google.com/thumbnail?id=${id}&sz=w${width}`;
+  return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
 }
 
 /** Fetch the live photo list. Returns [] on any error or empty folder. */
