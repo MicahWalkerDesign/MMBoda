@@ -1,12 +1,13 @@
 'use client';
 
-// Client-side image compression. Phones save 3–6 MB JPEG/HEIC photos; for
-// the gallery we only ever display ~1600 px wide, so we resize to 2000 px
-// (max edge) and re-encode JPEG at 0.82 quality before upload. That trims
-// ~10× off most photos and is the single biggest upload-speed win.
+// Client-side image compression. Phones save 3–6 MB JPEG/HEIC photos.
+// We resize only if the image is genuinely huge (max edge > 3200 px,
+// roughly anything bigger than a 12 MP shot's long side) and re-encode
+// JPEG at 0.92 — visually near-lossless. Smaller photos pass through
+// untouched so we never down-rez originals.
 
-const MAX_EDGE_DEFAULT = 2000;
-const QUALITY_DEFAULT = 0.82;
+const MAX_EDGE_DEFAULT = 3200;
+const QUALITY_DEFAULT = 0.92;
 
 export interface CompressedImage {
   /** data: URL ready to drop into the JSON payload */

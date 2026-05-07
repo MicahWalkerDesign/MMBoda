@@ -18,6 +18,7 @@ export default function UploadPage() {
     const [uploadCount, setUploadCount] = useState(0);
     const [progress, setProgress] = useState(0);
     const [progressLabel, setProgressLabel] = useState('');
+    const [resetSignal, setResetSignal] = useState(0);
 
     const handleUpload = async (files: FileWithPreview[]) => {
         setStatus('uploading');
@@ -48,14 +49,18 @@ export default function UploadPage() {
         if (successCount > 0) {
             setUploadCount((prev) => prev + successCount);
             setStatus('success');
+            setResetSignal((n) => n + 1);
+            setTimeout(() => {
+                if (typeof window !== 'undefined') window.location.reload();
+            }, 2500);
         } else {
             setStatus('error');
+            setTimeout(() => {
+                setStatus('idle');
+                setProgress(0);
+                setProgressLabel('');
+            }, 4000);
         }
-        setTimeout(() => {
-            setStatus('idle');
-            setProgress(0);
-            setProgressLabel('');
-        }, 4000);
     };
 
     const uploadedText =
@@ -96,6 +101,7 @@ export default function UploadPage() {
                     isUploading={status === 'uploading'}
                     progress={progress}
                     progressLabel={progressLabel}
+                    resetSignal={resetSignal}
                 />
             </GlassCard>
 

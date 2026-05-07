@@ -49,6 +49,7 @@ export default function HomePage() {
   const [uploadCount, setUploadCount] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadProgressLabel, setUploadProgressLabel] = useState('');
+  const [uploadResetSignal, setUploadResetSignal] = useState(0);
 
   // Live gallery photos pulled from the shared Drive folder.
   const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
@@ -131,14 +132,20 @@ export default function HomePage() {
     if (successCount > 0) {
       setUploadCount((prev) => prev + successCount);
       setUploadStatus('success');
+      // Clear the dropzone queue and reload so the new uploads appear in
+      // the gallery carousel after the success message has been seen.
+      setUploadResetSignal((n) => n + 1);
+      setTimeout(() => {
+        if (typeof window !== 'undefined') window.location.reload();
+      }, 2500);
     } else {
       setUploadStatus('error');
+      setTimeout(() => {
+        setUploadStatus('idle');
+        setUploadProgress(0);
+        setUploadProgressLabel('');
+      }, 4000);
     }
-    setTimeout(() => {
-      setUploadStatus('idle');
-      setUploadProgress(0);
-      setUploadProgressLabel('');
-    }, 4000);
   };
 
   const uploadedText =
@@ -589,6 +596,7 @@ export default function HomePage() {
               isUploading={uploadStatus === 'uploading'}
               progress={uploadProgress}
               progressLabel={uploadProgressLabel}
+              resetSignal={uploadResetSignal}
             />
           </GlassCard>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { compressImage } from '../lib/imageCompress';
 import { useI18n } from '../lib/i18n';
@@ -12,6 +12,8 @@ interface PhotoDropzoneProps {
     progress?: number;
     /** "{n}/{total}" for the helper line under the bar */
     progressLabel?: string;
+    /** Increment to clear the selected-files queue (e.g. after a successful upload). */
+    resetSignal?: number;
 }
 
 export interface FileWithPreview {
@@ -27,12 +29,23 @@ export default function PhotoDropzone({
     isUploading,
     progress = 0,
     progressLabel,
+    resetSignal = 0,
 }: PhotoDropzoneProps) {
     const { t } = useI18n();
     const [dragActive, setDragActive] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
     const [processing, setProcessing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Clear the queue when the parent bumps resetSignal (e.g. after success).
+    useEffect(() => {
+        if (resetSignal === 0) return;
+        setSelectedFiles((prev) => {
+            prev.forEach((f) => URL.revokeObjectURL(f.preview));
+            return [];
+        });
+        if (inputRef.current) inputRef.current.value = '';
+    }, [resetSignal]);
 
     const processFiles = useCallback(async (files: FileList | File[]) => {
         const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
