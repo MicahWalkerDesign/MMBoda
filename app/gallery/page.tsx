@@ -1,25 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Lightbox from '../../components/Lightbox';
 import { useI18n } from '../../lib/i18n';
-import { asset } from '../../lib/paths';
 import {
     GALLERY_REFRESH_MS,
     driveThumb,
     fetchLivePhotos,
     type DrivePhoto,
 } from '../../lib/galleryFeed';
-
-const FALLBACK_PHOTOS = [
-    asset('/images/IMG_2290.jpeg'),
-    asset('/images/IMG_2310.jpeg'),
-    asset('/images/IMG_2313.jpeg'),
-    asset('/images/IMG_2314.jpeg'),
-    asset('/images/IMG_2326.jpeg'),
-    asset('/images/IMG_2374.jpeg'),
-    asset('/images/IMG_2388.jpeg'),
-];
 
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
 
@@ -45,12 +34,9 @@ export default function GalleryPage() {
         };
     }, []);
 
-    const isLive = livePhotos !== null && livePhotos.length > 0;
-
-    const images = useMemo<string[]>(() => {
-        if (isLive && livePhotos) return livePhotos.map((p) => driveThumb(p.id, 1600));
-        return FALLBACK_PHOTOS;
-    }, [isLive, livePhotos]);
+    const isLoading = livePhotos === null;
+    const isEmpty = livePhotos !== null && livePhotos.length === 0;
+    const images: string[] = livePhotos ? livePhotos.map((p) => driveThumb(p.id, 1600)) : [];
 
     return (
         <div className="min-h-dvh px-4 py-8 max-w-lg mx-auto space-y-6">
@@ -60,35 +46,49 @@ export default function GalleryPage() {
                 </h1>
                 <p className="text-sm text-coffee/60">{t('gallery.subtitleStandalone')}</p>
                 <p className="text-[11px] text-coffee/45 pt-1">
-                    {isLive ? t('gallery.live') : t('gallery.fallbackNote')}
+                    {isLoading ? t('gallery.loading') : isEmpty ? t('gallery.empty') : t('gallery.live')}
                 </p>
             </div>
 
-            <div className="columns-2 gap-3 space-y-3 animate-fade-in-up opacity-0 delay-100">
-                {images.map((src, i) => (
-                    <button
-                        key={`${src}-${i}`}
-                        onClick={() => setLightboxIndex(i)}
-                        className="block w-full rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group break-inside-avoid"
-                        style={{ animationDelay: `${0.1 + i * 0.05}s` }}
-                    >
-                        <div className="relative overflow-hidden">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={src}
-                                alt={`Photo ${i + 1}`}
-                                loading="lazy"
-                                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-coffee/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
-                                <span className="glass rounded-full px-3 py-1 text-xs text-white font-medium">
-                                    {t('gallery.view')}
-                                </span>
+            {!isLoading && !isEmpty && (
+                <div className="columns-2 gap-3 space-y-3 animate-fade-in-up opacity-0 delay-100">
+                    {images.map((src, i) => (
+                        <button
+                            key={`${src}-${i}`}
+                            onClick={() => setLightboxIndex(i)}
+                            className="block w-full rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group break-inside-avoid"
+                            style={{ animationDelay: `${0.1 + i * 0.05}s` }}
+                        >
+                            <div className="relative overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={src}
+                                    alt={`Photo ${i + 1}`}
+                                    loading="lazy"
+                                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-coffee/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
+                                    <span className="glass rounded-full px-3 py-1 text-xs text-white font-medium">
+                                        {t('gallery.view')}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                ))}
-            </div>
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {isLoading && (
+                <div className="columns-2 gap-3 space-y-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="rounded-2xl bg-coffee/5 break-inside-avoid animate-pulse"
+                            style={{ height: i % 3 === 0 ? 220 : i % 3 === 1 ? 160 : 190 }}
+                        />
+                    ))}
+                </div>
+            )}
 
             <div className="text-center pt-4 animate-fade-in-up opacity-0 delay-300">
                 <a
@@ -107,7 +107,7 @@ export default function GalleryPage() {
 
             <div className="h-8" />
 
-            {lightboxIndex !== null && (
+            {lightboxIndex !== null && images.length > 0 && (
                 <Lightbox
                     images={images}
                     initialIndex={lightboxIndex}

@@ -152,7 +152,7 @@ export const translations: Translations = {
     'gallery.view': 'View',
     'gallery.noSignin': 'Opens Google Drive — no sign-in needed',
     'gallery.live': 'Live · updates as guests upload',
-    'gallery.fallbackNote': 'Engagement photos for now — wedding uploads will appear here',
+    'gallery.empty': 'No photos yet — be the first to upload!',
     'gallery.loading': 'Loading photos…',
 
     // Upload page (standalone)
@@ -309,7 +309,7 @@ export const translations: Translations = {
     'gallery.view': 'Ver',
     'gallery.noSignin': 'Abre Google Drive — sin registro',
     'gallery.live': 'En directo · se actualiza con cada subida',
-    'gallery.fallbackNote': 'De momento las fotos del compromiso — las de la boda aparecerán aquí',
+    'gallery.empty': 'Aún no hay fotos — ¡sé el primero en subir!',
     'gallery.loading': 'Cargando fotos…',
 
     'upload.subtitleStandalone':

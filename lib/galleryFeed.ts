@@ -33,10 +33,19 @@ export function driveThumb(id: string, width = 1200): string {
   return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
 }
 
-/** Fetch the live photo list. Returns [] on any error or empty folder. */
+/**
+ * Fetch the live photo list. Returns [] on any error or empty folder.
+ *
+ * Uses a query-string cache buster (`?t=…`) instead of `cache: 'no-store'`
+ * because the latter would add a `Cache-Control: no-cache` request header,
+ * which is not a CORS-safelisted header — it would force the browser to send
+ * an OPTIONS preflight, and Apps Script `/exec` returns 405 for OPTIONS,
+ * blocking the request entirely.
+ */
 export async function fetchLivePhotos(signal?: AbortSignal): Promise<DrivePhoto[]> {
   try {
-    const res = await fetch(GALLERY_FEED_URL, { signal, cache: 'no-store' });
+    const url = `${GALLERY_FEED_URL}?t=${Date.now()}`;
+    const res = await fetch(url, { signal });
     if (!res.ok) return [];
     const data = (await res.json()) as FeedResponse;
     return Array.isArray(data.photos) ? data.photos : [];
