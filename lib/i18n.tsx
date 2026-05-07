@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-export type Lang = 'en' | 'es';
+export type Lang = 'en' | 'es' | 'de';
 
 type Dict = Record<string, string>;
 type Translations = Record<Lang, Dict>;
@@ -327,6 +327,174 @@ export const translations: Translations = {
 
     'footer.tag': 'Hecho con amor para nuestro día',
   },
+  de: {
+    // Nav
+    'nav.welcome': 'Willkommen',
+    'nav.rsvp': 'Zusagen',
+    'nav.updates': 'Neuigkeiten',
+    'nav.day': 'Der Tag',
+    'nav.gallery': 'Galerie',
+    'nav.upload': 'Fotos',
+
+    // Hero
+    'hero.welcome': 'Wir heiraten!',
+    'hero.dateLocation': '25. September 2026 · Salou, Tarragona',
+    'hero.date': 'Freitag, 25. September 2026',
+    'hero.time': 'Ankunft 13:30 · Trauung 14:00',
+    'hero.place': 'INFINITUM Beach Club · Salou, Tarragona · Spanien',
+    'hero.countdownTitle': 'Bis zum „Ja-Wort“',
+    'hero.scrollHint': 'Weiterscrollen für Details',
+    'countdown.days': 'Tage',
+    'countdown.hours': 'Std',
+    'countdown.minutes': 'Min',
+    'countdown.seconds': 'Sek',
+
+    // Welcome / Intro
+    'welcome.title': 'Willkommen zu unserer Hochzeit!',
+    'welcome.headline': 'Wir heiraten 💍',
+    'welcome.body':
+      'Wir könnten nicht glücklicher sein und freuen uns riesig, diesen besonderen Moment mit euch zu teilen. Wir haben diese Website gestaltet, damit ihr uns auf dem Weg zum großen Tag begleiten und alle wichtigen Infos finden könnt. Außerdem fragen wir nach ein paar Details, die uns helfen, alles mit Liebe zu organisieren.',
+    'welcome.cta': 'Vergesst nicht, unten zuzusagen und euer Menü auszuwählen!',
+    'welcome.signoff': 'Danke, dass ihr Teil davon seid. Bis ganz bald 🥹🫶🏻',
+
+    // RSVP
+    'rsvp.title': 'Seid ihr dabei?',
+    'rsvp.subtitle':
+      'Um eure Teilnahme zu bestätigen, gebt einfach euren Namen an und sagt uns, ob ihr kommt. Wenn ihr schon dabei seid, wählt bitte auch euer Hauptgericht.',
+    'rsvp.firstName': 'Vorname',
+    'rsvp.lastName': 'Nachname',
+    'rsvp.attendance': 'Wirst du dabei sein?',
+    'rsvp.attending': 'Ja, ich bin dabei',
+    'rsvp.notAttending': 'Leider kann ich nicht',
+    'rsvp.meal': 'Hauptgericht',
+    'rsvp.meat': 'Fleisch',
+    'rsvp.fish': 'Fisch',
+    'rsvp.vegetarian': 'Vegetarisch',
+    'rsvp.dietary': 'Allergien / besondere Ernährung',
+    'rsvp.dietaryHelp':
+      'Allergien, Unverträglichkeiten, vegetarisch oder vegan? Schreibt es uns — wir kümmern uns um jedes Detail 💖',
+    'rsvp.dietaryPlaceholder': 'z. B. vegetarisch, laktoseintolerant…',
+    'rsvp.message': 'Hinterlasst uns eine Nachricht (optional)',
+    'rsvp.messagePlaceholder': 'Ein paar Worte für uns 🥰',
+    'rsvp.submit': 'Zusage absenden',
+    'rsvp.sending': 'Wird gesendet…',
+    'rsvp.thanks': 'Danke!',
+    'rsvp.thanksAttending': 'Wir freuen uns riesig, mit euch zu feiern!',
+    'rsvp.thanksDeclined': 'Wir werden euch vermissen — danke für die Rückmeldung.',
+    'rsvp.edit': 'Antwort bearbeiten',
+    'rsvp.errorRequired': 'Bitte Namen eingeben und Auswahl treffen.',
+    'rsvp.errorSend': 'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
+    'rsvp.skip': 'Vielleicht später',
+    'rsvp.openButton': 'Formular öffnen',
+    'rsvp.guestN': 'Gast {n}',
+    'rsvp.youLabel': 'Du',
+    'rsvp.addGuest': '+ Weiteren Gast hinzufügen',
+    'rsvp.removeGuest': 'Entfernen',
+    'rsvp.guestNote': 'Fügt euren Partner, Kinder oder Begleitung hinzu.',
+    'rsvp.partySummary': 'Gruppe von {n}',
+
+    // Updates
+    'updates.title': 'Hochzeits-Blog',
+    'updates.headline': 'Achtung ⚠️!',
+    'updates.body':
+      'Wir empfehlen, diesen Bereich im Auge zu behalten — hier teilen wir die neuesten Updates rund um die Organisation der Hochzeit. Je näher der große Tag rückt, desto mehr Infos findet ihr hier, inklusive Uhrzeit und Ort des Vorabend-Treffens am Donnerstag (entspannt — Strandbar) und der Ankunftszeit am Freitag, damit alles reibungslos läuft.',
+    'updates.beachTitle': 'Donnerstags Meet & Greet vor der Hochzeit 🏖️',
+    'updates.beachWhen': 'Donnerstag, 24. September 2026 — entspannter Nachmittag',
+    'updates.beachWhere': 'Den genauen Chiringuito / Beach Hut bestätigen wir noch',
+    'updates.beachBody':
+      'Vor dem großen Tag möchten wir uns gerne ganz entspannt in einer Strandbar treffen: Drinks, Snacks und Sand zwischen den Zehen (Selbstbedienung). Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas WEISSES dabei ist! Wir posten hier den genauen Ort und die Uhrzeit, sobald es feststeht.',
+    'updates.timelineTitle': 'Tagesablauf',
+    'updates.timelineBody':
+      'Hier teilen wir bald eine kurze Übersicht des Tagesablaufs, damit ihr uns durch jeden Moment begleiten könnt. Die Details folgen bald 🥳',
+    'day.tbaBadge': 'Demnächst',
+    'day.tbaNote':
+      'Der Tagesablauf steht noch nicht endgültig fest — die finalen Zeiten verraten wir näher am großen Tag.',
+
+    // Practical info
+    'info.title': 'Wichtige Infos',
+    'info.venueLabel': 'Ort',
+    'info.venue': 'Salou, Tarragona — Costa Daurada, Spanien',
+    'info.dateLabel': 'Datum',
+    'info.date': 'Freitag, 25. September 2026',
+    'info.preWedding':
+      'Donnerstags-Vorhochzeit: entspannter Nachmittag in einer Strandbar — Details folgen bald im Blog.',
+
+    // Gifts
+    'gifts.title': 'Geschenk',
+    'gifts.body':
+      'Eure Anwesenheit bedeutet uns am meisten. Wenn ihr uns helfen wollt, weiter zu träumen, zu reisen und zu tanzen, könnt ihr das hier tun:',
+    'gifts.holder': 'Mónica Herrero Vargas',
+    'gifts.iban': 'IBAN: ES10 0081 0169 3600 0658 5164',
+    'gifts.copy': 'IBAN kopieren',
+    'gifts.copied': 'Kopiert!',
+    'gifts.thanks': 'Vielen Dank von ❤️',
+
+    // Questions
+    'questions.title': 'Noch Fragen?',
+    'questions.body':
+      'Wenn ihr Fragen habt, helfen wir gerne weiter. Schreibt uns jederzeit und wir antworten so schnell wie möglich 😇',
+
+    // The Day
+    'day.title': 'Der Tag',
+    'day.subtitle': '25. September 2026 · Salou, Spanien',
+    'day.note': 'Eine Übersicht des großen Tages — Details folgen bald 🥳',
+    'day.e1.title': 'Ankunft der Gäste',
+    'day.e1.desc': 'Begrüßungsgetränk und Plätze suchen.',
+    'day.e2.title': 'Trauung',
+    'day.e2.desc': 'Der „Ja“-Moment — Taschentücher mitbringen.',
+    'day.e3.title': 'Sektempfang',
+    'day.e3.desc': 'Drinks und Häppchen, während wir Fotos machen.',
+    'day.e4.title': 'Abendessen',
+    'day.e4.desc': 'Sitzendes Dinner, Reden und Anstoßen.',
+    'day.e5.title': 'Eröffnungstanz & Party',
+    'day.e5.desc': 'Auf die Tanzfläche — hier passiert die Magie.',
+    'day.e6.title': 'Mitternachtssnack',
+    'day.e6.desc': 'Tanzen macht hungrig.',
+
+    // Upload (homepage)
+    'upload.title': 'Teilt eure Fotos',
+    'upload.subtitle':
+      'Eure Fotos landen direkt in unserem Album — ohne Anmeldung.',
+    'upload.nameLabel': 'Dein Name',
+    'upload.optional': '(optional)',
+    'upload.namePlaceholder': 'z. B. Sarah & Tom',
+    'upload.success': 'Fotos hochgeladen!',
+    'upload.successDesc': 'Danke, dass ihr eure Erinnerungen teilt.',
+    'upload.error': 'Etwas ist schiefgelaufen',
+    'upload.errorDesc': 'Bitte erneut versuchen — oder schickt sie uns direkt.',
+    'upload.counted': 'Du hast heute {n} Foto geteilt',
+    'upload.countedPlural': 'Du hast heute {n} Fotos geteilt',
+
+    // Gallery
+    'gallery.title': 'Fotogalerie',
+    'gallery.subtitle': 'Ein paar Momente zusammen',
+    'gallery.subtitleStandalone': 'Momente von unserem gemeinsamen Weg',
+    'gallery.viewAll': 'Alle Fotos ansehen',
+    'gallery.viewAllLong': 'Alle Fotos auf Google Drive ansehen',
+    'gallery.view': 'Ansehen',
+    'gallery.noSignin': 'Öffnet Google Drive — keine Anmeldung nötig',
+    'gallery.live': 'Live · aktualisiert sich mit jedem Upload',
+    'gallery.empty': 'Noch keine Fotos — sei der/die Erste beim Upload!',
+    'gallery.loading': 'Fotos werden geladen…',
+
+    // Upload page (standalone)
+    'upload.subtitleStandalone':
+      'Hilf uns, jeden Moment festzuhalten! Lade deine Fotos von der Feier hoch — sie landen direkt in unserem geteilten Album.',
+    'upload.tipsTitle': 'Tipps',
+    'upload.tip1': 'Du kannst mehrere Fotos auf einmal hochladen',
+    'upload.tip2': 'Fotos gehen direkt in unser Google-Drive-Album',
+    'upload.tip3': 'Keine Anmeldung nötig!',
+
+    // Itinerary page (standalone)
+    'day.venueDetails': 'Veranstaltungsort',
+    'day.venueLocation': 'Salou, Tarragona, Spanien',
+    'day.venueSoon': 'Vollständige Details zum Ort folgen bald',
+    'day.timesNote':
+      'Die Zeiten sind ungefähr und können sich am Tag leicht verschieben. Lasst euch einfach treiben und genießt!',
+
+    // Footer
+    'footer.tag': 'Mit Liebe für unseren Hochzeitstag gemacht',
+  },
 };
 
 interface I18nContextValue {
@@ -343,13 +511,14 @@ function detectLang(): Lang {
   if (typeof navigator === 'undefined') return 'en';
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'en' || stored === 'es') return stored;
+    if (stored === 'en' || stored === 'es' || stored === 'de') return stored;
   } catch {
     /* ignore */
   }
   const langs = navigator.languages?.length ? navigator.languages : [navigator.language];
   for (const l of langs) {
     if (l?.toLowerCase().startsWith('es')) return 'es';
+    if (l?.toLowerCase().startsWith('de')) return 'de';
     if (l?.toLowerCase().startsWith('en')) return 'en';
   }
   return 'en';

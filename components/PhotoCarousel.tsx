@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 
 interface PhotoCarouselProps {
     images: string[];
@@ -93,13 +92,13 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
                         className="flex-none snap-center active:scale-[0.97] transition-transform"
                     >
                         <div className="relative w-[200px] h-[270px] sm:w-[240px] sm:h-[320px] rounded-2xl overflow-hidden shadow-md">
-                            <Image
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
                                 src={src}
                                 alt={`Photo ${i + 1}`}
-                                fill
-                                className="object-cover select-none pointer-events-none"
-                                sizes="240px"
+                                loading="lazy"
                                 draggable={false}
+                                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
                             />
                             {/* Subtle gradient */}
                             <div className="absolute inset-0 bg-gradient-to-t from-coffee/15 to-transparent" />

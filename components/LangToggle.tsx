@@ -1,6 +1,12 @@
 'use client';
 
-import { useI18n } from '../lib/i18n';
+import { useI18n, type Lang } from '../lib/i18n';
+
+const OPTIONS: { code: Lang; label: string }[] = [
+  { code: 'en', label: 'EN' },
+  { code: 'es', label: 'ES' },
+  { code: 'de', label: 'DE' },
+];
 
 export default function LangToggle({ className = '' }: { className?: string }) {
   const { lang, setLang } = useI18n();
@@ -10,26 +16,21 @@ export default function LangToggle({ className = '' }: { className?: string }) {
       role="group"
       aria-label="Language"
     >
-      <button
-        type="button"
-        onClick={() => setLang('en')}
-        aria-pressed={lang === 'en'}
-        className={`px-2.5 py-1 rounded-full transition-all ${
-          lang === 'en' ? 'bg-terracotta text-white shadow-sm' : 'text-coffee/60 hover:text-terracotta'
-        }`}
-      >
-        EN
-      </button>
-      <button
-        type="button"
-        onClick={() => setLang('es')}
-        aria-pressed={lang === 'es'}
-        className={`px-2.5 py-1 rounded-full transition-all ${
-          lang === 'es' ? 'bg-terracotta text-white shadow-sm' : 'text-coffee/60 hover:text-terracotta'
-        }`}
-      >
-        ES
-      </button>
+      {OPTIONS.map(({ code, label }) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => setLang(code)}
+          aria-pressed={lang === code}
+          className={`px-2.5 py-1 rounded-full transition-all ${
+            lang === code
+              ? 'bg-terracotta text-white shadow-sm'
+              : 'text-coffee/60 hover:text-terracotta'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }

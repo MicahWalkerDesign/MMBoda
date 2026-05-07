@@ -10,16 +10,12 @@ import RsvpModal, { readStoredRsvp, RsvpData } from '../components/RsvpModal';
 import CountdownTimer from '../components/CountdownTimer';
 import { useI18n } from '../lib/i18n';
 import { asset } from '../lib/paths';
-
-const ENGAGEMENT_PHOTOS = [
-  asset('/images/IMG_2290.jpeg'),
-  asset('/images/IMG_2310.jpeg'),
-  asset('/images/IMG_2313.jpeg'),
-  asset('/images/IMG_2314.jpeg'),
-  asset('/images/IMG_2326.jpeg'),
-  asset('/images/IMG_2374.jpeg'),
-  asset('/images/IMG_2388.jpeg'),
-];
+import {
+  GALLERY_REFRESH_MS,
+  driveThumb,
+  fetchLivePhotos,
+  type DrivePhoto,
+} from '../lib/galleryFeed';
 
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
 // Replace with your deployed Google Apps Script Web App URL
@@ -51,6 +47,12 @@ export default function HomePage() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [uploadCount, setUploadCount] = useState(0);
 
+  // Live gallery photos pulled from the shared Drive folder.
+  const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
+  const galleryImages: string[] = livePhotos ? livePhotos.map((p) => driveThumb(p.id, 1600)) : [];
+  const galleryLoading = livePhotos === null;
+  const galleryEmpty = livePhotos !== null && livePhotos.length === 0;
+
   // IBAN copy
   const [ibanCopied, setIbanCopied] = useState(false);
 
@@ -62,6 +64,23 @@ export default function HomePage() {
       const timer = setTimeout(() => setRsvpOpen(true), 900);
       return () => clearTimeout(timer);
     }
+  }, []);
+
+  // Pull live photos from Drive on mount, then refresh every 15 min.
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    const load = async () => {
+      const photos = await fetchLivePhotos(controller.signal);
+      if (!cancelled) setLivePhotos(photos);
+    };
+    load();
+    const id = setInterval(load, GALLERY_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      controller.abort();
+      clearInterval(id);
+    };
   }, []);
 
   const handleRsvpSubmitted = (data: RsvpData) => {
@@ -486,10 +505,28 @@ export default function HomePage() {
         </div>
 
         <div className="animate-fade-in-up opacity-0 delay-200 px-4">
-          <PhotoCarousel
-            images={ENGAGEMENT_PHOTOS}
-            onImageClick={(i) => setLightboxIndex(i)}
-          />
+          {galleryLoading ? (
+            <div className="flex gap-3 overflow-hidden pb-2 pl-2 pr-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-none w-[200px] h-[270px] sm:w-[240px] sm:h-[320px] rounded-2xl bg-coffee/5 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : galleryEmpty ? (
+            <div className="glass rounded-2xl p-8 text-center">
+              <p className="text-coffee/50 text-sm">{t('gallery.empty')}</p>
+            </div>
+          ) : (
+            <PhotoCarousel
+              images={galleryImages}
+              onImageClick={(i) => setLightboxIndex(i)}
+            />
+          )}
+          {!galleryLoading && !galleryEmpty && (
+            <p className="text-center text-[11px] text-coffee/40 mt-2">{t('gallery.live')}</p>
+          )}
         </div>
 
         <div className="text-center px-6 mt-6 animate-fade-in-up opacity-0 delay-300">
@@ -582,9 +619,9 @@ export default function HomePage() {
       </footer>
 
       {/* Lightbox */}
-      {lightboxIndex !== null && (
+      {lightboxIndex !== null && galleryImages.length > 0 && (
         <Lightbox
-          images={ENGAGEMENT_PHOTOS}
+          images={galleryImages}
           initialIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
         />
