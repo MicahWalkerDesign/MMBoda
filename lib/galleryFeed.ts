@@ -12,6 +12,14 @@ export const GALLERY_FEED_URL =
 /** How often the live gallery refreshes itself, in milliseconds. */
 export const GALLERY_REFRESH_MS = 15 * 60 * 1000;
 
+/**
+ * Maximum number of photos shown in the on-site gallery views (homepage
+ * carousel + /gallery page). The rest are accessible via the
+ * "View All Photos on Google Drive" link. Keep small so the page
+ * stays fast and visually focused on the latest uploads.
+ */
+export const GALLERY_MAX_PHOTOS = 10;
+
 export interface DrivePhoto {
   id: string;
   name: string;
@@ -48,7 +56,12 @@ export async function fetchLivePhotos(signal?: AbortSignal): Promise<DrivePhoto[
     const res = await fetch(url, { signal });
     if (!res.ok) return [];
     const data = (await res.json()) as FeedResponse;
-    return Array.isArray(data.photos) ? data.photos : [];
+    if (!Array.isArray(data.photos)) return [];
+    // Newest uploads first, then keep only the most recent N. The full
+    // album is always available via the Drive folder link.
+    return [...data.photos]
+      .sort((a, b) => (b.modified ?? 0) - (a.modified ?? 0))
+      .slice(0, GALLERY_MAX_PHOTOS);
   } catch {
     return [];
   }
