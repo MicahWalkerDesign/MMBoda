@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Lightbox from '../../components/Lightbox';
 import { useI18n } from '../../lib/i18n';
 import { asset } from '../../lib/paths';
@@ -74,14 +73,12 @@ export default function GalleryPage() {
                         style={{ animationDelay: `${0.1 + i * 0.05}s` }}
                     >
                         <div className="relative overflow-hidden">
-                            <Image
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
                                 src={src}
                                 alt={`Photo ${i + 1}`}
-                                width={400}
-                                height={i % 3 === 0 ? 500 : i % 3 === 1 ? 350 : 420}
+                                loading="lazy"
                                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                                sizes="(max-width: 640px) 50vw, 250px"
-                                unoptimized={isLive}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-coffee/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
                                 <span className="glass rounded-full px-3 py-1 text-xs text-white font-medium">

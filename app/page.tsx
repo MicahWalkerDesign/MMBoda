@@ -170,12 +170,12 @@ export default function HomePage() {
               <p className="text-xs text-terracotta font-semibold">
                 {t('hero.time')}
               </p>
-              <p className="text-xs text-sage-dark flex items-center justify-center gap-1.5">
-                <svg className="w-3 h-3 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <p className="text-xs text-sage-dark flex items-start justify-center gap-1.5">
+                <svg className="w-3 h-3 mt-0.5 text-sage flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
-                {t('hero.place')}
+                <span>{t('hero.place')}</span>
               </p>
             </div>
           </div>
