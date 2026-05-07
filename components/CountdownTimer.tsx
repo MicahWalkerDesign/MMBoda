@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../lib/i18n';
 
-const WEDDING_DATE = new Date('2026-09-25T15:00:00+02:00'); // Salou, Spain (CEST)
+const WEDDING_DATE = new Date('2026-09-25T14:00:00+02:00'); // INFINITUM Beach Club, Salou, Spain (CEST)
 
 interface TimeLeft {
     days: number;
