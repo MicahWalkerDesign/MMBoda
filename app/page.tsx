@@ -16,6 +16,7 @@ import {
   fetchLivePhotos,
   type DrivePhoto,
 } from '../lib/galleryFeed';
+import { uploadPhotos } from '../lib/uploadPhoto';
 
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
 // Replace with your deployed Google Apps Script Web App URL
@@ -46,6 +47,8 @@ export default function HomePage() {
   const [guestName, setGuestName] = useState('');
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [uploadCount, setUploadCount] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgressLabel, setUploadProgressLabel] = useState('');
 
   // Live gallery photos pulled from the shared Drive folder.
   const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
@@ -99,39 +102,43 @@ export default function HomePage() {
 
   const handleUpload = async (files: FileWithPreview[]) => {
     setUploadStatus('uploading');
-    let successCount = 0;
+    setUploadProgress(0);
+    setUploadProgressLabel(`0/${files.length}`);
 
-    try {
-      for (const { base64, file } of files) {
-        try {
-          await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              file: base64,
-              filename: guestName ? `${guestName}_${file.name}` : `guest_${file.name}`,
-              filetype: file.type,
-            }),
-          });
-          successCount++;
-        } catch {
-          console.error(`Failed to upload ${file.name}`);
-        }
-      }
+    const items = files.map(({ base64, bytes, mime, file }) => {
+      // The compressor re-encodes to JPEG; rename the source extension so
+      // Drive shows a sensible name.
+      const baseName = file.name.replace(/\.(heic|heif|png|webp|tiff?|bmp|gif)$/i, '');
+      const filename = mime === 'image/jpeg' && !/\.jpe?g$/i.test(baseName)
+        ? `${baseName}.jpg`
+        : file.name;
+      return {
+        base64,
+        bytes,
+        filename: guestName ? `${guestName}_${filename}` : `guest_${filename}`,
+        filetype: mime,
+      };
+    });
 
-      if (successCount > 0) {
-        setUploadCount((prev) => prev + successCount);
-        setUploadStatus('success');
-        setTimeout(() => setUploadStatus('idle'), 4000);
-      } else {
-        setUploadStatus('error');
-        setTimeout(() => setUploadStatus('idle'), 4000);
-      }
-    } catch {
+    const { successCount } = await uploadPhotos(SCRIPT_URL, items, {
+      concurrency: 3,
+      onProgress: (p) => {
+        setUploadProgress(p.fraction);
+        setUploadProgressLabel(`${p.completedFiles}/${p.totalFiles}`);
+      },
+    });
+
+    if (successCount > 0) {
+      setUploadCount((prev) => prev + successCount);
+      setUploadStatus('success');
+    } else {
       setUploadStatus('error');
-      setTimeout(() => setUploadStatus('idle'), 4000);
     }
+    setTimeout(() => {
+      setUploadStatus('idle');
+      setUploadProgress(0);
+      setUploadProgressLabel('');
+    }, 4000);
   };
 
   const uploadedText =
@@ -577,7 +584,12 @@ export default function HomePage() {
           </GlassCard>
 
           <GlassCard delay={0.2}>
-            <PhotoDropzone onUpload={handleUpload} isUploading={uploadStatus === 'uploading'} />
+            <PhotoDropzone
+              onUpload={handleUpload}
+              isUploading={uploadStatus === 'uploading'}
+              progress={uploadProgress}
+              progressLabel={uploadProgressLabel}
+            />
           </GlassCard>
 
           {uploadStatus === 'success' && (

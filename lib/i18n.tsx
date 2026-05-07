@@ -142,6 +142,11 @@ export const translations: Translations = {
     'upload.errorDesc': 'Please try again — or send them to us directly.',
     'upload.counted': 'You’ve shared {n} photo today',
     'upload.countedPlural': 'You’ve shared {n} photos today',
+    'upload.button': 'Upload {n} Photo{s}',
+    'upload.preparing': 'Preparing photos…',
+    'upload.uploading': 'Uploading',
+    'dropzone.tap': 'Tap to choose photos',
+    'dropzone.dragDrop': 'or drag & drop your images here',
 
     // Gallery
     'gallery.title': 'Photo Gallery',
@@ -300,6 +305,11 @@ export const translations: Translations = {
     'upload.errorDesc': 'Inténtalo de nuevo — o envíanoslas directamente.',
     'upload.counted': 'Has compartido {n} foto hoy',
     'upload.countedPlural': 'Has compartido {n} fotos hoy',
+    'upload.button': 'Subir {n} foto{s}',
+    'upload.preparing': 'Preparando fotos…',
+    'upload.uploading': 'Subiendo',
+    'dropzone.tap': 'Toca para elegir fotos',
+    'dropzone.dragDrop': 'o arrastra y suelta tus imágenes aquí',
 
     'gallery.title': 'Galería de fotos',
     'gallery.subtitle': 'Algunos momentos juntos',
@@ -464,6 +474,11 @@ export const translations: Translations = {
     'upload.errorDesc': 'Bitte erneut versuchen — oder schickt sie uns direkt.',
     'upload.counted': 'Du hast heute {n} Foto geteilt',
     'upload.countedPlural': 'Du hast heute {n} Fotos geteilt',
+    'upload.button': '{n} Foto{s} hochladen',
+    'upload.preparing': 'Fotos werden vorbereitet…',
+    'upload.uploading': 'Wird hochgeladen',
+    'dropzone.tap': 'Tippe, um Fotos auszuwählen',
+    'dropzone.dragDrop': 'oder ziehe deine Bilder hierher',
 
     // Gallery
     'gallery.title': 'Fotogalerie',

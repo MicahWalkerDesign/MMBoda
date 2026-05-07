@@ -2,44 +2,61 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { compressImage } from '../lib/imageCompress';
+import { useI18n } from '../lib/i18n';
 
 interface PhotoDropzoneProps {
     onUpload: (files: FileWithPreview[]) => void;
     isUploading: boolean;
+    /** 0 → 1 batch upload progress; only used while isUploading */
+    progress?: number;
+    /** "{n}/{total}" for the helper line under the bar */
+    progressLabel?: string;
 }
 
 export interface FileWithPreview {
-    file: File;
-    preview: string;
-    base64: string;
+    file: File;          // original File (used for filename only)
+    preview: string;     // object URL for the thumbnail
+    base64: string;      // data: URL of the compressed image
+    bytes: number;       // approx compressed payload size in bytes
+    mime: string;        // mime after compression (usually image/jpeg)
 }
 
-export default function PhotoDropzone({ onUpload, isUploading }: PhotoDropzoneProps) {
+export default function PhotoDropzone({
+    onUpload,
+    isUploading,
+    progress = 0,
+    progressLabel,
+}: PhotoDropzoneProps) {
+    const { t } = useI18n();
     const [dragActive, setDragActive] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
+    const [processing, setProcessing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const processFiles = useCallback(async (files: FileList | File[]) => {
-        const fileArray = Array.from(files).filter(f => f.type.startsWith('image/'));
+        const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+        if (fileArray.length === 0) return;
 
-        const processed: FileWithPreview[] = await Promise.all(
-            fileArray.map(
-                (file) =>
-                    new Promise<FileWithPreview>((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            resolve({
-                                file,
-                                preview: URL.createObjectURL(file),
-                                base64: reader.result as string,
-                            });
-                        };
-                        reader.readAsDataURL(file);
-                    })
-            )
-        );
-
-        setSelectedFiles((prev) => [...prev, ...processed]);
+        setProcessing(true);
+        try {
+            // Compress in parallel — canvas resizing is fast and CPU-bound.
+            const processed: FileWithPreview[] = await Promise.all(
+                fileArray.map(async (file) => {
+                    const compressed = await compressImage(file);
+                    return {
+                        file,
+                        preview: URL.createObjectURL(file),
+                        base64: compressed.base64,
+                        bytes: compressed.bytes,
+                        mime: compressed.mime,
+                    };
+                })
+            );
+            setSelectedFiles((prev) => [...prev, ...processed]);
+        } finally {
+            setProcessing(false);
+        }
     }, []);
 
     const handleDrop = useCallback(
@@ -69,10 +86,13 @@ export default function PhotoDropzone({ onUpload, isUploading }: PhotoDropzonePr
     };
 
     const handleSubmit = () => {
-        if (selectedFiles.length > 0) {
+        if (selectedFiles.length > 0 && !isUploading) {
             onUpload(selectedFiles);
         }
     };
+
+    const pct = Math.round(Math.min(1, Math.max(0, progress)) * 100);
+    const buttonDisabled = isUploading || processing;
 
     return (
         <div className="space-y-4">
@@ -83,7 +103,7 @@ export default function PhotoDropzone({ onUpload, isUploading }: PhotoDropzonePr
                 onDrop={handleDrop}
                 onClick={() => inputRef.current?.click()}
                 className={`
-          relative cursor-pointer rounded-2xl border-2 border-dashed p-8 
+          relative cursor-pointer rounded-2xl border-2 border-dashed p-8
           text-center transition-all duration-300
           ${dragActive
                         ? 'border-terracotta bg-terracotta/5 scale-[1.01]'
@@ -109,10 +129,10 @@ export default function PhotoDropzone({ onUpload, isUploading }: PhotoDropzonePr
                 </div>
 
                 <p className="text-sm font-medium text-coffee/80 font-[family-name:var(--font-poppins)]">
-                    Tap to choose photos
+                    {t('dropzone.tap')}
                 </p>
                 <p className="text-xs text-coffee/50 mt-1">
-                    or drag & drop your images here
+                    {t('dropzone.dragDrop')}
                 </p>
             </div>
 
@@ -128,43 +148,73 @@ export default function PhotoDropzone({ onUpload, isUploading }: PhotoDropzonePr
                                     fill
                                     className="object-cover"
                                 />
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                                    className="absolute top-1 right-1 w-6 h-6 bg-coffee/60 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    ✕
-                                </button>
+                                {!isUploading && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                                        className="absolute top-1 right-1 w-6 h-6 bg-coffee/60 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
 
                     <button
                         onClick={handleSubmit}
-                        disabled={isUploading}
+                        disabled={buttonDisabled}
                         className={`
-              w-full py-3.5 rounded-xl font-semibold text-sm text-white
-              font-[family-name:var(--font-poppins)]
+              relative w-full py-3.5 rounded-xl font-semibold text-sm text-white
+              font-[family-name:var(--font-poppins)] overflow-hidden
               transition-all duration-300
-              ${isUploading
-                                ? 'bg-terracotta/50 cursor-wait'
+              ${buttonDisabled
+                                ? 'bg-fuchsia/40 cursor-wait'
                                 : 'bg-fuchsia hover:bg-fuchsia-dark active:scale-[0.98] shadow-lg shadow-fuchsia/25'
                             }
             `}
                     >
-                        {isUploading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
-                                Uploading...
-                            </span>
-                        ) : (
-                            `Upload ${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}`
+                        {/* Progress fill: liquid bar that grows behind the label */}
+                        {isUploading && (
+                            <span
+                                aria-hidden="true"
+                                className="absolute inset-y-0 left-0 bg-fuchsia transition-[width] duration-200 ease-linear"
+                                style={{ width: `${pct}%` }}
+                            />
                         )}
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            {processing ? (
+                                <>
+                                    <Spinner />
+                                    {t('upload.preparing')}
+                                </>
+                            ) : isUploading ? (
+                                <>
+                                    <span className="tabular-nums">{pct}%</span>
+                                    <span className="opacity-80">·</span>
+                                    <span>{t('upload.uploading')}</span>
+                                    {progressLabel && (
+                                        <span className="opacity-80">({progressLabel})</span>
+                                    )}
+                                </>
+                            ) : (
+                                t('upload.button', {
+                                    n: selectedFiles.length,
+                                    s: selectedFiles.length === 1 ? '' : 's',
+                                })
+                            )}
+                        </span>
                     </button>
                 </div>
             )}
         </div>
+    );
+}
+
+function Spinner() {
+    return (
+        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
     );
 }
