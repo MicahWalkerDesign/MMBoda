@@ -32,6 +32,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_IBAN: ${{ secrets.NEXT_PUBLIC_IBAN }}
 
       - name: Disable Jekyll on Pages
         run: touch ./out/.nojekyll

@@ -33,7 +33,7 @@ const EVENT_KEYS = [
   { time: '00:00', key: 'e6', icon: '🌮' },
 ];
 
-const IBAN_VALUE = 'ES10 0081 0169 3600 0658 5164';
+const IBAN_VALUE = process.env.NEXT_PUBLIC_IBAN ?? '';
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -57,7 +57,8 @@ export default function HomePage() {
   const galleryLoading = livePhotos === null;
   const galleryEmpty = livePhotos !== null && livePhotos.length === 0;
 
-  // IBAN copy
+  // IBAN reveal + copy
+  const [ibanRevealed, setIbanRevealed] = useState(false);
   const [ibanCopied, setIbanCopied] = useState(false);
 
   // Auto-open the RSVP modal on first visit (after a short delay so the hero is visible)
@@ -479,14 +480,34 @@ export default function HomePage() {
               <p className="text-xs text-coffee/55 leading-relaxed">{t('gifts.body')}</p>
               <div className="bg-white/50 border border-terracotta/15 rounded-xl px-3 py-3 space-y-1.5">
                 <p className="text-xs font-semibold text-coffee">{t('gifts.holder')}</p>
-                <p className="text-[11px] font-mono text-coffee/70 break-all">{t('gifts.iban')}</p>
+
+                {/* Blur-reveal IBAN */}
                 <button
                   type="button"
-                  onClick={copyIban}
-                  className="text-[11px] text-terracotta hover:text-terracotta-dark font-semibold transition-colors"
+                  onClick={() => setIbanRevealed(true)}
+                  disabled={ibanRevealed}
+                  className="w-full text-left space-y-0.5 group"
+                  aria-label={ibanRevealed ? undefined : t('gifts.tapToReveal')}
                 >
-                  {ibanCopied ? `✓ ${t('gifts.copied')}` : `📋 ${t('gifts.copy')}`}
+                  <p className={`text-[11px] font-mono text-coffee/70 break-all transition-all duration-300 select-none ${ibanRevealed ? '' : 'blur-sm'}`}>
+                    {t('gifts.ibanLabel')}: {IBAN_VALUE}
+                  </p>
+                  {!ibanRevealed && (
+                    <p className="text-[10px] text-terracotta/70 font-medium">
+                      👆 {t('gifts.tapToReveal')}
+                    </p>
+                  )}
                 </button>
+
+                {ibanRevealed && (
+                  <button
+                    type="button"
+                    onClick={copyIban}
+                    className="text-[11px] text-terracotta hover:text-terracotta-dark font-semibold transition-colors"
+                  >
+                    {ibanCopied ? `✓ ${t('gifts.copied')}` : `📋 ${t('gifts.copy')}`}
+                  </button>
+                )}
               </div>
               <p className="text-xs text-coffee/55 italic">{t('gifts.thanks')}</p>
             </div>
