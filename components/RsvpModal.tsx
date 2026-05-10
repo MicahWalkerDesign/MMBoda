@@ -179,13 +179,13 @@ export default function RsvpModal({
       <button
         type="button"
         aria-label="Close"
-        className="absolute inset-0 bg-coffee/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-coffee/70 backdrop-blur-md"
         onClick={() => dismissible && onClose()}
         tabIndex={-1}
       />
 
       {/* Sheet */}
-      <div className="relative glass-heavy rounded-3xl w-full max-w-sm max-h-[92dvh] overflow-y-auto shadow-2xl border border-terracotta/15 animate-fade-in-up">
+      <div className="relative rounded-3xl w-full max-w-sm max-h-[92dvh] overflow-y-auto shadow-2xl border border-terracotta/15 animate-fade-in-up bg-[#FBF5EC]">
         <div className="p-5 sm:p-6 space-y-4">
           {status === 'success' ? (
             <div className="text-center space-y-3 py-4">
