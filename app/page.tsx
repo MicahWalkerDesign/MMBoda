@@ -33,7 +33,7 @@ const EVENT_KEYS = [
   { time: '00:00', key: 'e6', icon: '🌮' },
 ];
 
-const IBAN_VALUE = 'ES10 0081 0169 3600 0658 5164';
+const IBAN_VALUE = 'ES04 0081 0169 3100 0225 2430';
 
 export default function HomePage() {
   const { t } = useI18n();

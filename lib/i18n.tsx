@@ -102,8 +102,8 @@ export const translations: Translations = {
     'gifts.title': 'Gifts',
     'gifts.body':
       'Your presence is the most important gift to us. If you’d like to help us keep dreaming, travelling and dancing together, you can do so here:',
-    'gifts.holder': 'Mónica Herrero Vargas',
-    'gifts.iban': 'IBAN: ES10 0081 0169 3600 0658 5164',
+    'gifts.holder': 'Mónica Herrero Vargas · Micah John Walker',
+    'gifts.iban': 'IBAN: ES04 0081 0169 3100 0225 2430',
     'gifts.copy': 'Copy IBAN',
     'gifts.copied': 'Copied!',
     'gifts.thanks': 'Thank you so much from ❤️',
@@ -267,8 +267,8 @@ export const translations: Translations = {
     'gifts.title': 'Regalo',
     'gifts.body':
       'Vuestra presencia es lo más importante. Si queréis ayudarnos a seguir soñando, viajando y bailando juntos, podéis hacerlo aquí:',
-    'gifts.holder': 'Mónica Herrero Vargas',
-    'gifts.iban': 'IBAN: ES10 0081 0169 3600 0658 5164',
+    'gifts.holder': 'Mónica Herrero Vargas · Micah John Walker',
+    'gifts.iban': 'IBAN: ES04 0081 0169 3100 0225 2430',
     'gifts.copy': 'Copiar IBAN',
     'gifts.copied': '¡Copiado!',
     'gifts.thanks': 'Muchas gracias de ❤️',
@@ -433,8 +433,8 @@ export const translations: Translations = {
     'gifts.title': 'Geschenk',
     'gifts.body':
       'Eure Anwesenheit bedeutet uns am meisten. Wenn ihr uns helfen wollt, weiter zu träumen, zu reisen und zu tanzen, könnt ihr das hier tun:',
-    'gifts.holder': 'Mónica Herrero Vargas',
-    'gifts.iban': 'IBAN: ES10 0081 0169 3600 0658 5164',
+    'gifts.holder': 'Mónica Herrero Vargas · Micah John Walker',
+    'gifts.iban': 'IBAN: ES04 0081 0169 3100 0225 2430',
     'gifts.copy': 'IBAN kopieren',
     'gifts.copied': 'Kopiert!',
     'gifts.thanks': 'Vielen Dank von ❤️',
