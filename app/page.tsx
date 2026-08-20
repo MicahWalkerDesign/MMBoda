@@ -25,12 +25,14 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ij
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
 const EVENT_KEYS = [
-  { time: '14:00', key: 'e1', icon: '🥂' },
-  { time: '15:00', key: 'e2', icon: '💍', highlight: true },
-  { time: '16:00', key: 'e3', icon: '🍹' },
-  { time: '17:30', key: 'e4', icon: '🍽️' },
-  { time: '20:00', key: 'e5', icon: '💃' },
-  { time: '00:00', key: 'e6', icon: '🌮' },
+  { time: '13:30', key: 'e1', icon: '🥂' },
+  { time: '14:00', key: 'e2', icon: '💍', highlight: true },
+  { time: '15:30', key: 'e3', icon: '📸' },
+  { time: '16:00', key: 'e4', icon: '🍹' },
+  { time: '19:30', key: 'e5', icon: '🍽️' },
+  { key: 'e6', icon: '💃' },
+  { key: 'e7', icon: '🪩' },
+  { time: '02:00-03:00', key: 'e8', icon: '🌙' },
 ];
 
 const IBAN_VALUE = 'ES04 0081 0169 3100 0225 2430';
@@ -402,14 +404,8 @@ export default function HomePage() {
             <p className="text-xs text-coffee/50">{t('day.subtitle')}</p>
           </div>
 
-          {/* Timeline is not locked yet — we still render the events so guests
-              get a feel for the shape of the day, but blur the times/details
-              and overlay a "Coming soon" badge. */}
           <div className="relative">
-            <div
-              className="relative pl-10 space-y-0 select-none pointer-events-none filter blur-[3px]"
-              aria-hidden="true"
-            >
+            <div className="relative pl-10 space-y-0">
               <div className="absolute left-[15px] top-7 bottom-7 w-0.5 bg-gradient-to-b from-terracotta/30 via-fuchsia/20 to-sage/20 rounded-full" />
 
               {EVENT_KEYS.map((event, i) => (
@@ -439,23 +435,15 @@ export default function HomePage() {
                           {t(`day.${event.key}.desc`)}
                         </p>
                       </div>
-                      <span className="flex-none text-[11px] font-bold text-terracotta bg-terracotta/8 rounded-full px-2 py-0.5 mt-0.5">
-                        {event.time}
-                      </span>
+                      {event.time ? (
+                        <span className="flex-none text-[11px] font-bold text-terracotta bg-terracotta/8 rounded-full px-2 py-0.5 mt-0.5">
+                          {event.time}
+                        </span>
+                      ) : null}
                     </div>
                   </GlassCard>
                 </div>
               ))}
-            </div>
-
-            {/* Coming-soon overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="glass-heavy rounded-full px-5 py-2 shadow-lg flex items-center gap-2">
-                <span aria-hidden>🔒</span>
-                <span className="text-xs font-semibold text-coffee font-[family-name:var(--font-poppins)] tracking-wide">
-                  {t('day.tbaBadge')}
-                </span>
-              </div>
             </div>
           </div>
 

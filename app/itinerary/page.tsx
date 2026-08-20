@@ -4,12 +4,14 @@ import GlassCard from '../../components/GlassCard';
 import { useI18n } from '../../lib/i18n';
 
 const EVENT_KEYS = [
-    { time: '14:00', key: 'e1', icon: '🥂' },
-    { time: '15:00', key: 'e2', icon: '💍', highlight: true },
-    { time: '16:00', key: 'e3', icon: '🍹' },
-    { time: '17:30', key: 'e4', icon: '🍽️' },
-    { time: '20:00', key: 'e5', icon: '💃' },
-    { time: '00:00', key: 'e6', icon: '🌮' },
+    { time: '13:30', key: 'e1', icon: '🥂' },
+    { time: '14:00', key: 'e2', icon: '💍', highlight: true },
+    { time: '15:30', key: 'e3', icon: '📸' },
+    { time: '16:00', key: 'e4', icon: '🍹' },
+    { time: '19:30', key: 'e5', icon: '🍽️' },
+    { key: 'e6', icon: '💃' },
+    { key: 'e7', icon: '🪩' },
+    { time: '02:00-03:00', key: 'e8', icon: '🌙' },
 ];
 
 export default function ItineraryPage() {
@@ -56,9 +58,11 @@ export default function ItineraryPage() {
                                         {t(`day.${event.key}.desc`)}
                                     </p>
                                 </div>
-                                <span className="flex-none text-xs font-semibold text-terracotta bg-terracotta/10 rounded-full px-2.5 py-1">
-                                    {event.time}
-                                </span>
+                                {event.time ? (
+                                    <span className="flex-none text-xs font-semibold text-terracotta bg-terracotta/10 rounded-full px-2.5 py-1">
+                                        {event.time}
+                                    </span>
+                                ) : null}
                             </div>
                         </GlassCard>
                     </div>
