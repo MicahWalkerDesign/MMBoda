@@ -85,7 +85,7 @@ export const translations: Translations = {
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spain',
     'updates.beachBody':
-      'Before the big day we’d love to get together for a laid-back welcome at Chiringuito Marina La Pineda — drinks, snacks and sand between your toes (self service). Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something white!',
+      'Before the big day we’d love to get together for a laid-back welcome at Chiringuito Marina La Pineda — drinks, snacks and sand between your toes. Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something white!',
     'updates.timelineTitle': 'Wedding day timeline',
     'updates.timelineBody':
       'Here is the current timeline for the big day, so you can be part of every moment with us 🥳',
@@ -256,7 +256,7 @@ export const translations: Translations = {
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, España',
     'updates.beachBody':
-      'Antes del gran día nos encantaría reunirnos en Chiringuito Marina La Pineda para un encuentro relajado: bebida, picoteo y arena entre los dedos (self service). Pasaos a saludar, conoced a otros invitados e id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo blanco!',
+      'Antes del gran día nos encantaría reunirnos en Chiringuito Marina La Pineda para un encuentro relajado: bebida, picoteo y arena entre los dedos. Pasaos a saludar, conoced a otros invitados e id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo blanco!',
     'updates.timelineTitle': 'Timeline del día',
     'updates.timelineBody':
       'Aquí compartimos el timeline actual del gran día, para que puedas acompañarnos en cada momento 🥳',
@@ -426,7 +426,7 @@ export const translations: Translations = {
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spanien',
     'updates.beachBody':
-      'Vor dem großen Tag möchten wir uns gerne ganz entspannt im Chiringuito Marina La Pineda treffen: Drinks, Snacks und Sand zwischen den Zehen (Selbstbedienung). Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas Weißes dabei ist!',
+      'Vor dem großen Tag möchten wir uns gerne ganz entspannt im Chiringuito Marina La Pineda treffen: Drinks, Snacks und Sand zwischen den Zehen. Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas Weißes dabei ist!',
     'updates.timelineTitle': 'Tagesablauf',
     'updates.timelineBody':
       'Hier findet ihr den aktuellen Ablauf des großen Tages, damit ihr jeden Moment mit uns erleben könnt 🥳',
