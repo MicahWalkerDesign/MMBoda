@@ -33,11 +33,14 @@ export default function CountdownTimer() {
     const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
 
     useEffect(() => {
-        setTimeLeft(calculateTimeLeft());
+        const syncTimer = window.setTimeout(() => setTimeLeft(calculateTimeLeft()), 0);
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
-        return () => clearInterval(timer);
+        return () => {
+            clearTimeout(syncTimer);
+            clearInterval(timer);
+        };
     }, []);
 
     const labels = [

@@ -80,10 +80,12 @@ export const translations: Translations = {
     'updates.body':
       'We recommend keeping an eye on this section, as we’ll be sharing the latest updates on the wedding planning here. As the big day approaches, you’ll find all the updated information here, including the time and location of the Thursday pre-wedding (relaxed plan — beach-hut xiringuito), should you wish to join us and spend some time with us and other guests. We will also share the recommended arrival time for Friday, the wedding day, so everything runs smoothly.',
     'updates.beachTitle': 'Thursday pre-wedding Meet & Greet 🏖️',
-    'updates.beachWhen': 'Thursday, 24 September 2026 — relaxed afternoon',
-    'updates.beachWhere': 'Exact Beach Hut / xiringuito to follow',
+    'updates.beachWhen': 'Thursday, 24 September 2026 — 17:30-20:00',
+    'updates.beachWhere':
+      'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spain',
+    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
-      'Before the big day we’d love to get together for a laid-back welcome at a beach-bar (xiringuito) — drinks, snacks, sand between your toes (self service). Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something White! We’ll post the exact bar and arrival time here as soon as it’s pinned down.',
+      'Before the big day we’d love to get together for a laid-back welcome at Chiringuito Marina La Pineda — drinks, snacks and sand between your toes (self service). Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something white!',
     'updates.timelineTitle': 'Wedding day timeline',
     'updates.timelineBody':
       'Here we’ll share a rough timeline of the big day, so you can be part of every moment with us. All the details will be coming soon 🥳',
@@ -97,7 +99,7 @@ export const translations: Translations = {
     'info.dateLabel': 'Date',
     'info.date': 'Friday, 25 September 2026',
     'info.preWedding':
-      'Thursday pre-wedding: a relaxed beach-bar (xiringuito) get-together — details to follow on the blog.',
+      'Thursday pre-wedding: Chiringuito Marina La Pineda, 17:30-20:00.',
 
     'gifts.title': 'Gifts',
     'gifts.body':
@@ -245,10 +247,12 @@ export const translations: Translations = {
     'updates.body':
       'Te recomendamos no perder de vista esta sección, ya que aquí iremos compartiendo las últimas novedades sobre la organización de la boda. A medida que se acerque el gran día, encontrarás aquí toda la información actualizada, incluyendo la hora y el lugar de la pre-boda del jueves (plan relax — xiringuito en la playa), por si te apetece pasarte y compartir un rato con nosotros y otros invitados. También indicaremos la hora a la que deberás llegar el viernes, día de la boda, para que todo fluya perfectamente.',
     'updates.beachTitle': 'Meet & Greet pre-boda del jueves 🏖️',
-    'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — tarde tranquila',
-    'updates.beachWhere': 'Confirmaremos el chiringuito / Beach Hut exacto',
+    'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — 17:30-20:00',
+    'updates.beachWhere':
+      'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, España',
+    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
-      'Antes del gran día nos encantaría reunirnos en un encuentro relajado en un chiringuito de playa: bebida, picoteo y arena entre los dedos (self service). Pasaos a saludar, conoced a otros invitados e id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo BLANCO! Publicaremos aquí el bar exacto y la hora de llegada en cuanto lo cerremos.',
+      'Antes del gran día nos encantaría reunirnos en Chiringuito Marina La Pineda para un encuentro relajado: bebida, picoteo y arena entre los dedos (self service). Pasaos a saludar, conoced a otros invitados e id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo blanco!',
     'updates.timelineTitle': 'Timeline del día',
     'updates.timelineBody':
       'Aquí compartiremos un breve resumen del timeline del gran día, para que puedas acompañarnos en cada momento. Pronto tendrás todos los detalles 🥳',
@@ -262,7 +266,7 @@ export const translations: Translations = {
     'info.dateLabel': 'Fecha',
     'info.date': 'Viernes, 25 de septiembre de 2026',
     'info.preWedding':
-      'Pre-boda del jueves: plan relax en un xiringuito de playa — detalles próximamente en el blog.',
+      'Pre-boda del jueves: Chiringuito Marina La Pineda, 17:30-20:00.',
 
     'gifts.title': 'Regalo',
     'gifts.body':
@@ -409,10 +413,12 @@ export const translations: Translations = {
     'updates.body':
       'Wir empfehlen, diesen Bereich im Auge zu behalten — hier teilen wir die neuesten Updates rund um die Organisation der Hochzeit. Je näher der große Tag rückt, desto mehr Infos findet ihr hier, inklusive Uhrzeit und Ort des Vorabend-Treffens am Donnerstag (entspannt — Strandbar) und der Ankunftszeit am Freitag, damit alles reibungslos läuft.',
     'updates.beachTitle': 'Donnerstags Meet & Greet vor der Hochzeit 🏖️',
-    'updates.beachWhen': 'Donnerstag, 24. September 2026 — entspannter Nachmittag',
-    'updates.beachWhere': 'Den genauen Chiringuito / Beach Hut bestätigen wir noch',
+    'updates.beachWhen': 'Donnerstag, 24. September 2026 — 17:30-20:00',
+    'updates.beachWhere':
+      'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spanien',
+    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
-      'Vor dem großen Tag möchten wir uns gerne ganz entspannt in einer Strandbar treffen: Drinks, Snacks und Sand zwischen den Zehen (Selbstbedienung). Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas WEISSES dabei ist! Wir posten hier den genauen Ort und die Uhrzeit, sobald es feststeht.',
+      'Vor dem großen Tag möchten wir uns gerne ganz entspannt im Chiringuito Marina La Pineda treffen: Drinks, Snacks und Sand zwischen den Zehen (Selbstbedienung). Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas Weißes dabei ist!',
     'updates.timelineTitle': 'Tagesablauf',
     'updates.timelineBody':
       'Hier teilen wir bald eine kurze Übersicht des Tagesablaufs, damit ihr uns durch jeden Moment begleiten könnt. Die Details folgen bald 🥳',
@@ -427,7 +433,7 @@ export const translations: Translations = {
     'info.dateLabel': 'Datum',
     'info.date': 'Freitag, 25. September 2026',
     'info.preWedding':
-      'Donnerstags-Vorhochzeit: entspannter Nachmittag in einer Strandbar — Details folgen bald im Blog.',
+      'Donnerstags-Vorhochzeit: Chiringuito Marina La Pineda, 17:30-20:00.',
 
     // Gifts
     'gifts.title': 'Geschenk',
@@ -543,7 +549,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('en');
 
   useEffect(() => {
-    setLangState(detectLang());
+    const timer = window.setTimeout(() => setLangState(detectLang()), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

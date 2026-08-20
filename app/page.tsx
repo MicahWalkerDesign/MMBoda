@@ -62,12 +62,12 @@ export default function HomePage() {
 
   // Auto-open the RSVP modal on first visit (after a short delay so the hero is visible)
   useEffect(() => {
-    const existing = readStoredRsvp();
-    setStoredRsvp(existing);
-    if (!existing) {
-      const timer = setTimeout(() => setRsvpOpen(true), 900);
-      return () => clearTimeout(timer);
-    }
+    const syncTimer = window.setTimeout(() => {
+      const existing = readStoredRsvp();
+      setStoredRsvp(existing);
+      if (!existing) setRsvpOpen(true);
+    }, 900);
+    return () => clearTimeout(syncTimer);
   }, []);
 
   // Pull live photos from Drive on mount, then refresh every 15 min.
@@ -363,6 +363,10 @@ export default function HomePage() {
                 <p className="flex items-center gap-1.5">
                   <span aria-hidden>📍</span>
                   <span>{t('updates.beachWhere')}</span>
+                </p>
+                <p className="flex items-center gap-1.5">
+                  <span aria-hidden>💕</span>
+                  <span>{t('updates.beachReservation')}</span>
                 </p>
               </div>
               <p className="text-xs text-coffee/60 leading-relaxed pt-1 border-t border-terracotta/10">

@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { I18nProvider } from "../lib/i18n";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://micahwalkerdesign.github.io/MMBoda"),
   title: "Mónica & Micah — 25.09.2026 | Salou, Spain",
   description:
     "Celebrate our wedding in Salou, Spain! Upload and browse photos from our special day.",
@@ -12,6 +13,12 @@ export const metadata: Metadata = {
     title: "Mónica & Micah — Wedding 25.09.2026",
     description: "Share and relive our wedding day in Salou, Spain ☀️",
     type: "website",
+    images: ["/images/Logo.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mónica & Micah — Wedding 25.09.2026",
+    description: "Share and relive our wedding day in Salou, Spain ☀️",
     images: ["/images/Logo.png"],
   },
 };
