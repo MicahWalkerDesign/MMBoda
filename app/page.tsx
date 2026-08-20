@@ -375,10 +375,6 @@ export default function HomePage() {
                   <span aria-hidden>📍</span>
                   <span>{t('updates.beachWhere')}</span>
                 </p>
-                <p className="flex items-center gap-1.5">
-                  <span aria-hidden>💕</span>
-                  <span>{t('updates.beachReservation')}</span>
-                </p>
               </div>
               <p className="text-xs text-coffee/60 leading-relaxed pt-1 border-t border-terracotta/10">
                 {t('updates.beachBody')}

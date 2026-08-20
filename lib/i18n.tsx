@@ -84,7 +84,6 @@ export const translations: Translations = {
     'updates.beachWhen': 'Thursday, 24 September 2026 — 17:30-20:00',
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spain',
-    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
       'Before the big day we’d love to get together for a laid-back welcome at Chiringuito Marina La Pineda — drinks, snacks and sand between your toes (self service). Come say hi, meet other guests and warm up for the main event on Friday. Dress code is whatever you want, just wear something white!',
     'updates.timelineTitle': 'Wedding day timeline',
@@ -256,7 +255,6 @@ export const translations: Translations = {
     'updates.beachWhen': 'Jueves, 24 de septiembre de 2026 — 17:30-20:00',
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, España',
-    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
       'Antes del gran día nos encantaría reunirnos en Chiringuito Marina La Pineda para un encuentro relajado: bebida, picoteo y arena entre los dedos (self service). Pasaos a saludar, conoced a otros invitados e id calentando motores para el viernes. Como código de vestimenta, lo que queráis… ¡siempre que lleve algo blanco!',
     'updates.timelineTitle': 'Timeline del día',
@@ -427,7 +425,6 @@ export const translations: Translations = {
     'updates.beachWhen': 'Donnerstag, 24. September 2026 — 17:30-20:00',
     'updates.beachWhere':
       'Chiringuito Marina La Pineda, Passeig de Pau Casals, 104, 43481 La Pineda, Tarragona, Spanien',
-    'updates.beachReservation': 'Mónica Herrero Vargas: 17:30-20:00',
     'updates.beachBody':
       'Vor dem großen Tag möchten wir uns gerne ganz entspannt im Chiringuito Marina La Pineda treffen: Drinks, Snacks und Sand zwischen den Zehen (Selbstbedienung). Kommt vorbei, lernt die anderen Gäste kennen und stimmt euch auf den Freitag ein. Dresscode: tragt was ihr wollt … solange etwas Weißes dabei ist!',
     'updates.timelineTitle': 'Tagesablauf',
