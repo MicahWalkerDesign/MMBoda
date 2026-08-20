@@ -21,6 +21,7 @@ import { uploadPhotos } from '../lib/uploadPhoto';
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
 // Replace with your deployed Google Apps Script Web App URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
+const PRE_WEDDING_DATE = new Date('2026-09-24T17:30:00+02:00');
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -216,13 +217,21 @@ export default function HomePage() {
           </div>
 
           {/* Countdown */}
-          <div className="animate-fade-in-up opacity-0 delay-300 space-y-2">
-            <p
-              className="text-[11px] uppercase tracking-[0.18em] text-coffee font-semibold font-[family-name:var(--font-poppins)] [text-shadow:_0_1px_2px_rgba(251,245,236,0.85)]"
-            >
-              {t('hero.countdownTitle')}
-            </p>
-            <CountdownTimer />
+          <div className="animate-fade-in-up opacity-0 delay-300 space-y-3">
+            <div className="space-y-2">
+              <p
+                className="text-[11px] uppercase tracking-[0.18em] text-coffee font-semibold font-[family-name:var(--font-poppins)] [text-shadow:_0_1px_2px_rgba(251,245,236,0.85)]"
+              >
+                {t('hero.countdownTitle')}
+              </p>
+              <CountdownTimer />
+            </div>
+            <div className="space-y-1.5 pt-1">
+              <p className="text-[9px] uppercase tracking-[0.16em] text-coffee/55 font-semibold font-[family-name:var(--font-poppins)] [text-shadow:_0_1px_2px_rgba(251,245,236,0.75)]">
+                {t('hero.preWeddingCountdownTitle')}
+              </p>
+              <CountdownTimer targetDate={PRE_WEDDING_DATE} variant="sub" />
+            </div>
           </div>
 
           {/* Scroll hint */}
