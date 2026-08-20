@@ -63,13 +63,12 @@ export default function HomePage() {
   // IBAN copy
   const [ibanCopied, setIbanCopied] = useState(false);
 
-  // Auto-open the RSVP modal on first visit (after a short delay so the hero is visible)
+  // Read saved RSVP details for the inline edit state without opening the modal automatically.
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
       const existing = readStoredRsvp();
       setStoredRsvp(existing);
-      if (!existing) setRsvpOpen(true);
-    }, 900);
+    }, 0);
     return () => clearTimeout(syncTimer);
   }, []);
 
