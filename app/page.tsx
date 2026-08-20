@@ -231,6 +231,10 @@ export default function HomePage() {
                 {t('hero.preWeddingCountdownTitle')}
               </p>
               <CountdownTimer targetDate={PRE_WEDDING_DATE} variant="sub" />
+              <div className="space-y-0.5 pt-0.5 text-[10px] text-coffee/50 leading-snug font-medium [text-shadow:_0_1px_2px_rgba(251,245,236,0.75)]">
+                <p>{t('hero.preWeddingTime')}</p>
+                <p>{t('hero.preWeddingPlace')}</p>
+              </div>
             </div>
           </div>
 
