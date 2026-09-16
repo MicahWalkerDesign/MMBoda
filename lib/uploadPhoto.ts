@@ -1,134 +1,179 @@
 'use client';
 
-// Parallel photo upload helper with real progress tracking.
-//
-// Uses XMLHttpRequest instead of fetch so we get `upload.onprogress`
-// events (fetch doesn't expose request-body progress). We don't need to
-// read the response — Apps Script's response is opaque to us anyway —
-// so we treat `xhr.onload` as success regardless of status.
-//
-// Apps Script `/exec` accepts `Content-Type: text/plain;charset=utf-8`
-// without a CORS preflight (it's a CORS-safelisted content type), so the
-// XHR is sent directly and follows the 302 redirect to googleusercontent.
+import { UPLOAD_TIMEOUT_MS } from './weddingConfig';
 
 export interface UploadItem {
-  base64: string;     // data: URL with mime prefix
+  base64: string;
   filename: string;
   filetype: string;
-  bytes: number;      // approx body size (used for the progress bar)
+  bytes: number;
 }
 
 export interface UploadProgress {
-  /** 0 → 1 across all files in the batch */
   fraction: number;
   loaded: number;
   total: number;
   completedFiles: number;
   totalFiles: number;
-  /** index of currently-processing file (or first in the queue) */
   currentIndex: number;
+}
+
+export interface UploadFileResult {
+  index: number;
+  filename: string;
+  success: boolean;
+  id?: string;
+  error?: string;
+}
+
+export interface UploadBatchResult {
+  successCount: number;
+  failedCount: number;
+  results: UploadFileResult[];
 }
 
 export interface UploadOptions {
   concurrency?: number;
-  onProgress?: (p: UploadProgress) => void;
+  timeoutMs?: number;
+  onProgress?: (progress: UploadProgress) => void;
   signal?: AbortSignal;
+}
+
+interface UploadResponse {
+  ok?: boolean;
+  id?: string;
+  error?: string;
+  reason?: string;
 }
 
 function uploadOne(
   url: string,
   body: string,
   onBytes: (loaded: number) => void,
+  timeoutMs: number,
   signal?: AbortSignal
-): Promise<void> {
+): Promise<UploadResponse> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-    // Safelisted content type → no CORS preflight.
-    xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onBytes(e.loaded);
+    let settled = false;
+    const abort = () => xhr.abort();
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      signal?.removeEventListener('abort', abort);
+      callback();
     };
-    xhr.upload.onload = () => onBytes(body.length);
-    xhr.onload = () => resolve();
-    xhr.onerror = () => reject(new Error('Network error'));
-    xhr.onabort = () => reject(new Error('Aborted'));
-    xhr.ontimeout = () => reject(new Error('Timed out'));
-    if (signal) {
-      if (signal.aborted) {
-        xhr.abort();
-        reject(new Error('Aborted'));
+
+    xhr.open('POST', url);
+    xhr.timeout = timeoutMs;
+    xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onBytes(event.loaded);
+    };
+    xhr.upload.onload = () => onBytes(new Blob([body]).size);
+    xhr.onload = () => finish(() => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(`Upload failed with HTTP ${xhr.status}.`));
         return;
       }
-      signal.addEventListener('abort', () => xhr.abort(), { once: true });
+      try {
+        const response = JSON.parse(xhr.responseText) as UploadResponse;
+        if (response.ok !== true || !response.id) {
+          reject(new Error(response.error || response.reason || 'The server did not confirm the upload.'));
+          return;
+        }
+        resolve(response);
+      } catch {
+        reject(new Error('The server returned an invalid response.'));
+      }
+    });
+    xhr.onerror = () => finish(() => reject(new Error('Network error.')));
+    xhr.onabort = () => finish(() => reject(new Error('Upload cancelled.')));
+    xhr.ontimeout = () => finish(() => reject(new Error('Upload timed out.')));
+
+    if (signal) {
+      if (signal.aborted) {
+        reject(new Error('Upload cancelled.'));
+        return;
+      }
+      signal.addEventListener('abort', abort, { once: true });
     }
     xhr.send(body);
   });
 }
 
-/**
- * Upload photos to the Apps Script endpoint with bounded concurrency.
- * Returns the count of successful uploads.
- */
 export async function uploadPhotos(
   url: string,
   items: UploadItem[],
   options: UploadOptions = {}
-): Promise<{ successCount: number; failedCount: number }> {
-  const concurrency = Math.max(1, Math.min(options.concurrency ?? 3, items.length || 1));
-  const totalBytes = items.reduce((s, i) => s + i.bytes, 0) || 1;
-  const totalFiles = items.length;
+): Promise<UploadBatchResult> {
+  const concurrency = Math.max(1, Math.min(options.concurrency ?? 2, items.length || 1));
+  const payloads = items.map((item) => JSON.stringify({
+    file: item.base64,
+    filename: item.filename,
+    filetype: item.filetype,
+  }));
+  const payloadSizes = payloads.map((body) => new Blob([body]).size);
+  const totalBytes = payloadSizes.reduce((sum, size) => sum + size, 0) || 1;
   const loadedPerFile = new Array(items.length).fill(0);
+  const results: UploadFileResult[] = new Array(items.length);
   let completedFiles = 0;
-  let queueIdx = 0;
-  let successCount = 0;
-  let failedCount = 0;
+  let queueIndex = 0;
 
   const emit = (currentIndex: number) => {
-    const loaded = loadedPerFile.reduce((s, n) => s + n, 0);
+    const loaded = loadedPerFile.reduce((sum, value) => sum + value, 0);
     options.onProgress?.({
       fraction: Math.min(1, loaded / totalBytes),
       loaded,
       total: totalBytes,
       completedFiles,
-      totalFiles,
+      totalFiles: items.length,
       currentIndex,
     });
   };
 
   const worker = async () => {
     while (true) {
-      const idx = queueIdx < items.length ? queueIdx++ : -1;
-      if (idx < 0) return;
-      const item = items[idx];
-      const body = JSON.stringify({
-        file: item.base64,
-        filename: item.filename,
-        filetype: item.filetype,
-      });
-      emit(idx);
+      const index = queueIndex < items.length ? queueIndex++ : -1;
+      if (index < 0) return;
+      const item = items[index];
+      emit(index);
       try {
-        await uploadOne(
+        const response = await uploadOne(
           url,
-          body,
-          (n) => {
-            loadedPerFile[idx] = Math.min(n, item.bytes);
-            emit(idx);
+          payloads[index],
+          (loaded) => {
+            loadedPerFile[index] = Math.min(loaded, payloadSizes[index]);
+            emit(index);
           },
+          options.timeoutMs ?? UPLOAD_TIMEOUT_MS,
           options.signal
         );
-        loadedPerFile[idx] = item.bytes;
-        successCount++;
-      } catch (err) {
-        loadedPerFile[idx] = item.bytes; // Still count toward progress so the bar finishes.
-        failedCount++;
-        console.error('upload failed', item.filename, err);
+        results[index] = {
+          index,
+          filename: item.filename,
+          success: true,
+          id: response.id,
+        };
+      } catch (error) {
+        results[index] = {
+          index,
+          filename: item.filename,
+          success: false,
+          error: error instanceof Error ? error.message : 'Upload failed.',
+        };
       }
+      loadedPerFile[index] = payloadSizes[index];
       completedFiles++;
-      emit(idx);
+      emit(index);
     }
   };
 
   await Promise.all(Array.from({ length: concurrency }, worker));
-  return { successCount, failedCount };
+  const successCount = results.filter((result) => result.success).length;
+  return {
+    successCount,
+    failedCount: items.length - successCount,
+    results,
+  };
 }

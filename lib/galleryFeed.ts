@@ -1,24 +1,4 @@
-// Live gallery feed helpers.
-//
-// The Apps Script `doGet` returns:
-//   { photos: [{ id, name, mime, modified }] }
-// This module wraps the fetch + builds public Drive thumbnail URLs that
-// can be rendered without auth as long as the folder is shared
-// "Anyone with the link → Viewer".
-
-export const GALLERY_FEED_URL =
-  'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
-
-/** How often the live gallery refreshes itself, in milliseconds. */
-export const GALLERY_REFRESH_MS = 15 * 60 * 1000;
-
-/**
- * Maximum number of photos shown in the on-site gallery views (homepage
- * carousel + /gallery page). The rest are accessible via the
- * "View All Photos on Google Drive" link. Keep small so the page
- * stays fast and visually focused on the latest uploads.
- */
-export const GALLERY_MAX_PHOTOS = 10;
+import { APPS_SCRIPT_URL } from './weddingConfig';
 
 export interface DrivePhoto {
   id: string;
@@ -27,42 +7,72 @@ export interface DrivePhoto {
   modified: number;
 }
 
+export type GalleryFeedResult =
+  | { ok: true; photos: DrivePhoto[]; fetchedAt: number }
+  | { ok: false; photos: []; error: string; fetchedAt: number };
+
 interface FeedResponse {
-  photos?: DrivePhoto[];
+  ok?: boolean;
+  photos?: unknown;
+  error?: string;
 }
 
-/**
- * Public Drive image URL via the underlying googleusercontent CDN.
- * lh3.googleusercontent.com hotlinks more reliably than drive.google.com/thumbnail
- * (no redirect, no Drive UI session checks). Works for any file shared
- * "Anyone with the link → Viewer".
- */
+const DRIVE_ID_PATTERN = /^[A-Za-z0-9_-]{10,}$/;
+
 export function driveThumb(id: string, width = 1200): string {
   return `https://lh3.googleusercontent.com/d/${id}=w${width}`;
 }
 
-/**
- * Fetch the live photo list. Returns [] on any error or empty folder.
- *
- * Uses a query-string cache buster (`?t=…`) instead of `cache: 'no-store'`
- * because the latter would add a `Cache-Control: no-cache` request header,
- * which is not a CORS-safelisted header — it would force the browser to send
- * an OPTIONS preflight, and Apps Script `/exec` returns 405 for OPTIONS,
- * blocking the request entirely.
- */
-export async function fetchLivePhotos(signal?: AbortSignal): Promise<DrivePhoto[]> {
+function isDrivePhoto(value: unknown): value is DrivePhoto {
+  if (!value || typeof value !== 'object') return false;
+  const photo = value as Partial<DrivePhoto>;
+  return typeof photo.id === 'string'
+    && DRIVE_ID_PATTERN.test(photo.id)
+    && typeof photo.name === 'string'
+    && typeof photo.mime === 'string'
+    && photo.mime.startsWith('image/')
+    && typeof photo.modified === 'number'
+    && Number.isFinite(photo.modified);
+}
+
+export async function fetchLivePhotos(
+  signal?: AbortSignal,
+  limit?: number,
+  timeoutMs = 30000
+): Promise<GalleryFeedResult> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort', abort, { once: true });
+
   try {
-    const url = `${GALLERY_FEED_URL}?t=${Date.now()}`;
-    const res = await fetch(url, { signal });
-    if (!res.ok) return [];
-    const data = (await res.json()) as FeedResponse;
-    if (!Array.isArray(data.photos)) return [];
-    // Newest uploads first, then keep only the most recent N. The full
-    // album is always available via the Drive folder link.
-    return [...data.photos]
-      .sort((a, b) => (b.modified ?? 0) - (a.modified ?? 0))
-      .slice(0, GALLERY_MAX_PHOTOS);
-  } catch {
-    return [];
+    const response = await fetch(`${APPS_SCRIPT_URL}?t=${Date.now()}`, {
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Gallery request failed with HTTP ${response.status}.`);
+    const data = (await response.json()) as FeedResponse;
+    if (data.ok === false) throw new Error(data.error || 'Gallery service unavailable.');
+    if (!Array.isArray(data.photos)) throw new Error('Gallery returned invalid data.');
+
+    const photos = data.photos
+      .filter(isDrivePhoto)
+      .sort((a, b) => b.modified - a.modified);
+    return {
+      ok: true,
+      photos: typeof limit === 'number' ? photos.slice(0, limit) : photos,
+      fetchedAt: Date.now(),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      photos: [],
+      error: controller.signal.aborted && !signal?.aborted
+        ? 'Gallery request timed out.'
+        : error instanceof Error ? error.message : 'Gallery service unavailable.',
+      fetchedAt: Date.now(),
+    };
+  } finally {
+    window.clearTimeout(timeout);
+    signal?.removeEventListener('abort', abort);
   }
 }

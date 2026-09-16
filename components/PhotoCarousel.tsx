@@ -5,13 +5,16 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 interface PhotoCarouselProps {
     images: string[];
     onImageClick: (index: number) => void;
+    expandLabel: string;
 }
 
-export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselProps) {
+export default function PhotoCarousel({ images, onImageClick, expandLabel }: PhotoCarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
+    const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
     const dragStart = useRef<{ x: number; scroll: number } | null>(null);
+    const didDrag = useRef(false);
 
     const updateActiveIndex = useCallback(() => {
         const el = scrollRef.current;
@@ -36,6 +39,7 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
         const el = scrollRef.current;
         if (!el) return;
         setIsDragging(true);
+        didDrag.current = false;
         dragStart.current = { x: e.clientX, scroll: el.scrollLeft };
     };
 
@@ -43,6 +47,7 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
         if (!isDragging || !dragStart.current || !scrollRef.current) return;
         e.preventDefault();
         const dx = e.clientX - dragStart.current.x;
+        if (Math.abs(dx) > 5) didDrag.current = true;
         scrollRef.current.scrollLeft = dragStart.current.scroll - dx;
     };
 
@@ -52,9 +57,18 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
     };
 
     const handleClick = (index: number) => {
-        if (!isDragging) {
-            onImageClick(index);
+        if (didDrag.current) {
+            didDrag.current = false;
+            return;
         }
+        onImageClick(index);
+    };
+
+    const scrollByCard = (direction: -1 | 1) => {
+        const el = scrollRef.current;
+        const first = el?.children[0] as HTMLElement | undefined;
+        if (!el || !first) return;
+        el.scrollBy({ left: direction * (first.offsetWidth + 12), behavior: 'smooth' });
     };
 
     if (images.length === 0) {
@@ -66,7 +80,7 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
     }
 
     return (
-        <div className="space-y-3">
+        <div className="relative space-y-3">
             {/* Carousel container with proper padding for edge peek */}
             <div
                 ref={scrollRef}
@@ -89,29 +103,59 @@ export default function PhotoCarousel({ images, onImageClick }: PhotoCarouselPro
                     <button
                         key={i}
                         onClick={() => handleClick(i)}
+                        aria-label={`${expandLabel} ${i + 1}`}
                         className="flex-none snap-center active:scale-[0.97] transition-transform"
                     >
                         <div className="relative w-[200px] h-[270px] sm:w-[240px] sm:h-[320px] rounded-2xl overflow-hidden shadow-md">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={src}
-                                alt={`Photo ${i + 1}`}
-                                loading="lazy"
-                                draggable={false}
-                                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-                            />
+                            {failedImages.has(i) ? (
+                                <div className="absolute inset-0 bg-cream-dark flex items-center justify-center text-coffee/35 text-sm">
+                                    {i + 1}
+                                </div>
+                            ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={src}
+                                    alt={`Photo ${i + 1}`}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer"
+                                    draggable={false}
+                                    onError={() => setFailedImages((prev) => new Set(prev).add(i))}
+                                    className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+                                />
+                            )}
                             {/* Subtle gradient */}
                             <div className="absolute inset-0 bg-gradient-to-t from-coffee/15 to-transparent" />
                             {/* Tap hint on first image only */}
                             {i === 0 && (
                                 <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 glass rounded-full px-2.5 py-1 text-[9px] text-white/90 font-medium whitespace-nowrap">
-                                    Tap to expand
+                                    {expandLabel}
                                 </div>
                             )}
                         </div>
                     </button>
                 ))}
             </div>
+
+            {images.length > 1 && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => scrollByCard(-1)}
+                        aria-label="Previous photo"
+                        className="hidden sm:flex absolute left-5 top-[42%] -translate-y-1/2 z-10 w-9 h-9 rounded-full glass items-center justify-center text-coffee/70 hover:text-terracotta"
+                    >
+                        ‹
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => scrollByCard(1)}
+                        aria-label="Next photo"
+                        className="hidden sm:flex absolute right-5 top-[42%] -translate-y-1/2 z-10 w-9 h-9 rounded-full glass items-center justify-center text-coffee/70 hover:text-terracotta"
+                    >
+                        ›
+                    </button>
+                </>
+            )}
 
             {/* Dot indicators */}
             {images.length > 1 && (

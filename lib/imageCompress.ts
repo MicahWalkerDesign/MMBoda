@@ -6,8 +6,8 @@
 // JPEG at 0.92 — visually near-lossless. Smaller photos pass through
 // untouched so we never down-rez originals.
 
-const MAX_EDGE_DEFAULT = 3200;
-const QUALITY_DEFAULT = 0.92;
+const MAX_EDGE_DEFAULT = 2560;
+const QUALITY_DEFAULT = 0.86;
 
 export interface CompressedImage {
   /** data: URL ready to drop into the JSON payload */

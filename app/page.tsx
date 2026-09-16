@@ -10,20 +10,18 @@ import RsvpModal, { readStoredRsvp, RsvpData } from '../components/RsvpModal';
 import CountdownTimer from '../components/CountdownTimer';
 import { useI18n } from '../lib/i18n';
 import { asset } from '../lib/paths';
-import {
-  GALLERY_REFRESH_MS,
-  driveThumb,
-  fetchLivePhotos,
-  type DrivePhoto,
-} from '../lib/galleryFeed';
+import { driveThumb } from '../lib/galleryFeed';
+import { useLiveGallery } from '../lib/useLiveGallery';
 import { uploadPhotos } from '../lib/uploadPhoto';
+import {
+  APPS_SCRIPT_URL,
+  DRIVE_FOLDER_URL,
+  HOMEPAGE_GALLERY_LIMIT,
+} from '../lib/weddingConfig';
 
-const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
-// Replace with your deployed Google Apps Script Web App URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
 const PRE_WEDDING_DATE = new Date('2026-09-24T17:30:00+02:00');
 
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'partial' | 'error';
 
 const EVENT_KEYS = [
   { time: '13:30', key: 'e1', icon: '🥂' },
@@ -52,13 +50,17 @@ export default function HomePage() {
   const [uploadCount, setUploadCount] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadProgressLabel, setUploadProgressLabel] = useState('');
-  const [uploadResetSignal, setUploadResetSignal] = useState(0);
+  const [uploadFailureCount, setUploadFailureCount] = useState(0);
 
   // Live gallery photos pulled from the shared Drive folder.
-  const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
+  const {
+    photos: livePhotos,
+    error: galleryError,
+    refresh: refreshGallery,
+    isLoading: galleryLoading,
+  } = useLiveGallery(HOMEPAGE_GALLERY_LIMIT);
   const galleryImages: string[] = livePhotos ? livePhotos.map((p) => driveThumb(p.id, 1600)) : [];
-  const galleryLoading = livePhotos === null;
-  const galleryEmpty = livePhotos !== null && livePhotos.length === 0;
+  const galleryEmpty = livePhotos !== null && livePhotos.length === 0 && !galleryError;
 
   // IBAN copy
   const [ibanCopied, setIbanCopied] = useState(false);
@@ -70,23 +72,6 @@ export default function HomePage() {
       setStoredRsvp(existing);
     }, 0);
     return () => clearTimeout(syncTimer);
-  }, []);
-
-  // Pull live photos from Drive on mount, then refresh every 15 min.
-  useEffect(() => {
-    const controller = new AbortController();
-    let cancelled = false;
-    const load = async () => {
-      const photos = await fetchLivePhotos(controller.signal);
-      if (!cancelled) setLivePhotos(photos);
-    };
-    load();
-    const id = setInterval(load, GALLERY_REFRESH_MS);
-    return () => {
-      cancelled = true;
-      controller.abort();
-      clearInterval(id);
-    };
   }, []);
 
   const handleRsvpSubmitted = (data: RsvpData) => {
@@ -105,6 +90,7 @@ export default function HomePage() {
 
   const handleUpload = async (files: FileWithPreview[]) => {
     setUploadStatus('uploading');
+    setUploadFailureCount(0);
     setUploadProgress(0);
     setUploadProgressLabel(`0/${files.length}`);
 
@@ -123,31 +109,30 @@ export default function HomePage() {
       };
     });
 
-    const { successCount } = await uploadPhotos(SCRIPT_URL, items, {
-      concurrency: 3,
+    const result = await uploadPhotos(APPS_SCRIPT_URL, items, {
+      concurrency: 2,
       onProgress: (p) => {
         setUploadProgress(p.fraction);
         setUploadProgressLabel(`${p.completedFiles}/${p.totalFiles}`);
       },
     });
 
-    if (successCount > 0) {
-      setUploadCount((prev) => prev + successCount);
-      setUploadStatus('success');
-      // Clear the dropzone queue and reload so the new uploads appear in
-      // the gallery carousel after the success message has been seen.
-      setUploadResetSignal((n) => n + 1);
-      setTimeout(() => {
-        if (typeof window !== 'undefined') window.location.reload();
-      }, 2500);
+    const failedIndexes = result.results
+      .filter((file) => !file.success)
+      .map((file) => file.index);
+    setUploadFailureCount(result.failedCount);
+
+    if (result.successCount > 0) {
+      setUploadCount((prev) => prev + result.successCount);
+      setUploadStatus(result.failedCount > 0 ? 'partial' : 'success');
+      await refreshGallery();
+      window.setTimeout(refreshGallery, 3000);
     } else {
       setUploadStatus('error');
-      setTimeout(() => {
-        setUploadStatus('idle');
-        setUploadProgress(0);
-        setUploadProgressLabel('');
-      }, 4000);
     }
+    setUploadProgress(0);
+    setUploadProgressLabel('');
+    return { failedIndexes };
   };
 
   const uploadedText =
@@ -528,6 +513,17 @@ export default function HomePage() {
                 />
               ))}
             </div>
+          ) : galleryError && galleryImages.length === 0 ? (
+            <div className="glass rounded-2xl p-6 text-center space-y-3">
+              <p className="text-coffee/55 text-sm">{t('gallery.error')}</p>
+              <button
+                type="button"
+                onClick={() => refreshGallery()}
+                className="text-xs font-semibold text-terracotta hover:text-terracotta-dark"
+              >
+                {t('gallery.retry')}
+              </button>
+            </div>
           ) : galleryEmpty ? (
             <div className="glass rounded-2xl p-8 text-center">
               <p className="text-coffee/50 text-sm">{t('gallery.empty')}</p>
@@ -536,9 +532,10 @@ export default function HomePage() {
             <PhotoCarousel
               images={galleryImages}
               onImageClick={(i) => setLightboxIndex(i)}
+              expandLabel={t('gallery.expand')}
             />
           )}
-          {!galleryLoading && !galleryEmpty && (
+          {galleryImages.length > 0 && (
             <p className="text-center text-[11px] text-coffee/40 mt-2">{t('gallery.live')}</p>
           )}
         </div>
@@ -596,7 +593,6 @@ export default function HomePage() {
               isUploading={uploadStatus === 'uploading'}
               progress={uploadProgress}
               progressLabel={uploadProgressLabel}
-              resetSignal={uploadResetSignal}
             />
           </GlassCard>
 
@@ -617,6 +613,15 @@ export default function HomePage() {
                 {t('upload.error')}
               </p>
               <p className="text-xs text-coffee/50 mt-0.5">{t('upload.errorDesc')}</p>
+            </div>
+          )}
+
+          {uploadStatus === 'partial' && (
+            <div className="glass rounded-2xl p-4 text-center animate-fade-in-up border-gold/40 border">
+              <p className="text-sm font-semibold text-coffee font-[family-name:var(--font-poppins)]">
+                {t('upload.partial', { n: uploadFailureCount })}
+              </p>
+              <p className="text-xs text-coffee/50 mt-1">{t('upload.retryFailed')}</p>
             </div>
           )}
 

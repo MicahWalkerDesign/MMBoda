@@ -153,6 +153,11 @@ export const translations: Translations = {
     'upload.button': 'Upload {n} Photo{s}',
     'upload.preparing': 'Preparing photos…',
     'upload.uploading': 'Uploading',
+    'upload.partial': '{n} photo(s) could not be uploaded',
+    'upload.retryFailed': 'The failed photos are still selected. Tap upload to retry.',
+    'upload.selectionError': 'Choose supported image files within the upload limits.',
+    'upload.someFilesSkipped': 'Some files were skipped. You can select up to {n} photos at once.',
+    'upload.fileTooLarge': 'One or more photos are still too large after preparation.',
     'dropzone.tap': 'Tap to choose photos',
     'dropzone.dragDrop': 'or drag & drop your images here',
 
@@ -167,6 +172,9 @@ export const translations: Translations = {
     'gallery.live': 'Live · updates as guests upload',
     'gallery.empty': 'No photos yet — be the first to upload!',
     'gallery.loading': 'Loading photos…',
+    'gallery.error': 'The live album could not be reached. Your photos are still safe in Drive.',
+    'gallery.retry': 'Try again',
+    'gallery.expand': 'Open photo',
 
     // Upload page (standalone)
     'upload.subtitleStandalone':
@@ -324,6 +332,11 @@ export const translations: Translations = {
     'upload.button': 'Subir {n} foto{s}',
     'upload.preparing': 'Preparando fotos…',
     'upload.uploading': 'Subiendo',
+    'upload.partial': 'No se pudieron subir {n} foto(s)',
+    'upload.retryFailed': 'Las fotos fallidas siguen seleccionadas. Pulsa subir para reintentarlo.',
+    'upload.selectionError': 'Elige imágenes compatibles dentro de los límites de subida.',
+    'upload.someFilesSkipped': 'Se omitieron algunos archivos. Puedes seleccionar hasta {n} fotos a la vez.',
+    'upload.fileTooLarge': 'Una o más fotos siguen siendo demasiado grandes después de prepararlas.',
     'dropzone.tap': 'Toca para elegir fotos',
     'dropzone.dragDrop': 'o arrastra y suelta tus imágenes aquí',
 
@@ -337,6 +350,9 @@ export const translations: Translations = {
     'gallery.live': 'En directo · se actualiza con cada subida',
     'gallery.empty': 'Aún no hay fotos — ¡sé el primero en subir!',
     'gallery.loading': 'Cargando fotos…',
+    'gallery.error': 'No se pudo acceder al álbum en directo. Tus fotos siguen seguras en Drive.',
+    'gallery.retry': 'Reintentar',
+    'gallery.expand': 'Abrir foto',
 
     'upload.subtitleStandalone':
       '¡Ayúdanos a capturar cada momento! Sube tus fotos de la celebración y aparecerán directamente en nuestro álbum compartido.',
@@ -501,6 +517,11 @@ export const translations: Translations = {
     'upload.button': '{n} Foto{s} hochladen',
     'upload.preparing': 'Fotos werden vorbereitet…',
     'upload.uploading': 'Wird hochgeladen',
+    'upload.partial': '{n} Foto(s) konnten nicht hochgeladen werden',
+    'upload.retryFailed': 'Die fehlgeschlagenen Fotos bleiben ausgewählt. Tippe zum Wiederholen auf Hochladen.',
+    'upload.selectionError': 'Wähle unterstützte Bilddateien innerhalb der Upload-Limits.',
+    'upload.someFilesSkipped': 'Einige Dateien wurden übersprungen. Du kannst bis zu {n} Fotos gleichzeitig auswählen.',
+    'upload.fileTooLarge': 'Ein oder mehrere Fotos sind nach der Vorbereitung noch zu groß.',
     'dropzone.tap': 'Tippe, um Fotos auszuwählen',
     'dropzone.dragDrop': 'oder ziehe deine Bilder hierher',
 
@@ -515,6 +536,9 @@ export const translations: Translations = {
     'gallery.live': 'Live · aktualisiert sich mit jedem Upload',
     'gallery.empty': 'Noch keine Fotos — sei der/die Erste beim Upload!',
     'gallery.loading': 'Fotos werden geladen…',
+    'gallery.error': 'Das Live-Album ist gerade nicht erreichbar. Deine Fotos sind weiterhin sicher in Drive.',
+    'gallery.retry': 'Erneut versuchen',
+    'gallery.expand': 'Foto öffnen',
 
     // Upload page (standalone)
     'upload.subtitleStandalone':

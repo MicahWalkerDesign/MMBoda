@@ -4,16 +4,19 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { compressImage } from '../lib/imageCompress';
 import { useI18n } from '../lib/i18n';
+import {
+    MAX_SOURCE_FILE_BYTES,
+    MAX_UPLOAD_FILE_BYTES,
+    MAX_UPLOAD_FILES,
+} from '../lib/weddingConfig';
 
 interface PhotoDropzoneProps {
-    onUpload: (files: FileWithPreview[]) => void;
+    onUpload: (files: FileWithPreview[]) => Promise<{ failedIndexes: number[] }>;
     isUploading: boolean;
     /** 0 → 1 batch upload progress; only used while isUploading */
     progress?: number;
     /** "{n}/{total}" for the helper line under the bar */
     progressLabel?: string;
-    /** Increment to clear the selected-files queue (e.g. after a successful upload). */
-    resetSignal?: number;
 }
 
 export interface FileWithPreview {
@@ -29,48 +32,68 @@ export default function PhotoDropzone({
     isUploading,
     progress = 0,
     progressLabel,
-    resetSignal = 0,
 }: PhotoDropzoneProps) {
     const { t } = useI18n();
     const [dragActive, setDragActive] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
     const [processing, setProcessing] = useState(false);
+    const [selectionError, setSelectionError] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const selectedFilesRef = useRef<FileWithPreview[]>([]);
 
-    // Clear the queue when the parent bumps resetSignal (e.g. after success).
+    // Release preview URLs when the dropzone leaves the page.
     useEffect(() => {
-        if (resetSignal === 0) return;
-        setSelectedFiles((prev) => {
-            prev.forEach((f) => URL.revokeObjectURL(f.preview));
-            return [];
-        });
-        if (inputRef.current) inputRef.current.value = '';
-    }, [resetSignal]);
+        selectedFilesRef.current = selectedFiles;
+    }, [selectedFiles]);
+    useEffect(() => {
+        return () => selectedFilesRef.current.forEach((file) => URL.revokeObjectURL(file.preview));
+    }, []);
 
     const processFiles = useCallback(async (files: FileList | File[]) => {
-        const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
-        if (fileArray.length === 0) return;
+        setSelectionError(null);
+        const existingKeys = new Set(
+            selectedFiles.map(({ file }) => `${file.name}:${file.size}:${file.lastModified}`)
+        );
+        const imageFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
+        const uniqueFiles = imageFiles.filter(
+            (file) => !existingKeys.has(`${file.name}:${file.size}:${file.lastModified}`)
+        );
+        const availableSlots = Math.max(0, MAX_UPLOAD_FILES - selectedFiles.length);
+        const accepted = uniqueFiles
+            .filter((file) => file.size <= MAX_SOURCE_FILE_BYTES)
+            .slice(0, availableSlots);
+
+        if (accepted.length === 0) {
+            setSelectionError(t('upload.selectionError'));
+            return;
+        }
+        if (accepted.length < Array.from(files).length) {
+            setSelectionError(t('upload.someFilesSkipped', { n: MAX_UPLOAD_FILES }));
+        }
 
         setProcessing(true);
         try {
-            // Compress in parallel — canvas resizing is fast and CPU-bound.
-            const processed: FileWithPreview[] = await Promise.all(
-                fileArray.map(async (file) => {
-                    const compressed = await compressImage(file);
-                    return {
+            // Process sequentially to avoid holding several full-resolution phone photos in memory.
+            const processed: FileWithPreview[] = [];
+            for (const file of accepted) {
+                const compressed = await compressImage(file);
+                if (compressed.bytes <= MAX_UPLOAD_FILE_BYTES) {
+                    processed.push({
                         file,
                         preview: URL.createObjectURL(file),
                         base64: compressed.base64,
                         bytes: compressed.bytes,
                         mime: compressed.mime,
-                    };
-                })
-            );
+                    });
+                } else {
+                    setSelectionError(t('upload.fileTooLarge'));
+                }
+            }
             setSelectedFiles((prev) => [...prev, ...processed]);
         } finally {
             setProcessing(false);
         }
-    }, []);
+    }, [selectedFiles, t]);
 
     const handleDrop = useCallback(
         (e: React.DragEvent) => {
@@ -98,9 +121,18 @@ export default function PhotoDropzone({
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (selectedFiles.length > 0 && !isUploading) {
-            onUpload(selectedFiles);
+            const currentFiles = selectedFiles;
+            const { failedIndexes } = await onUpload(currentFiles);
+            const failed = new Set(failedIndexes);
+            setSelectedFiles(() => {
+                currentFiles.forEach((file, index) => {
+                    if (!failed.has(index)) URL.revokeObjectURL(file.preview);
+                });
+                return currentFiles.filter((_, index) => failed.has(index));
+            });
+            if (inputRef.current && failedIndexes.length === 0) inputRef.current.value = '';
         }
     };
 
@@ -114,7 +146,7 @@ export default function PhotoDropzone({
                 onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                 onDragLeave={() => setDragActive(false)}
                 onDrop={handleDrop}
-                onClick={() => inputRef.current?.click()}
+                onClick={() => !buttonDisabled && inputRef.current?.click()}
                 className={`
           relative cursor-pointer rounded-2xl border-2 border-dashed p-8
           text-center transition-all duration-300
@@ -130,6 +162,7 @@ export default function PhotoDropzone({
                     accept="image/*"
                     multiple
                     onChange={handleFileSelect}
+                    disabled={buttonDisabled}
                     className="hidden"
                 />
 
@@ -148,6 +181,12 @@ export default function PhotoDropzone({
                     {t('dropzone.dragDrop')}
                 </p>
             </div>
+
+            {selectionError && (
+                <p role="alert" className="text-xs text-fuchsia-dark text-center leading-relaxed">
+                    {selectionError}
+                </p>
+            )}
 
             {/* Preview grid */}
             {selectedFiles.length > 0 && (

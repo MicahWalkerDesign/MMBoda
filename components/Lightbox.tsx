@@ -146,6 +146,7 @@ export default function Lightbox({ images, initialIndex, onClose }: LightboxProp
                         className="object-contain rounded-lg select-none"
                         sizes="100vw"
                         priority
+                        referrerPolicy="no-referrer"
                         draggable={false}
                     />
                 </div>

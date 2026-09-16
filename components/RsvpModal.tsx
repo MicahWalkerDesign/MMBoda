@@ -2,12 +2,9 @@
 
 import { useEffect, useState, FormEvent } from 'react';
 import { useI18n } from '../lib/i18n';
+import { APPS_SCRIPT_URL } from '../lib/weddingConfig';
 
 const STORAGE_KEY = 'mm-wedding-rsvp';
-
-// Same Google Apps Script endpoint used by the photo uploader.
-// The script branches on the `type` field to write RSVPs to a sheet.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
 
 export type Meal = 'meat' | 'fish' | 'vegetarian' | '';
 export type Attending = 'yes' | 'no' | '';
@@ -147,7 +144,7 @@ export default function RsvpModal({
 
     try {
       // Best-effort POST to Apps Script (no-cors → response is opaque, fine).
-      await fetch(SCRIPT_URL, {
+      await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },

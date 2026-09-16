@@ -5,11 +5,9 @@ import GlassCard from '../../components/GlassCard';
 import PhotoDropzone, { FileWithPreview } from '../../components/PhotoDropzone';
 import { useI18n } from '../../lib/i18n';
 import { uploadPhotos } from '../../lib/uploadPhoto';
+import { APPS_SCRIPT_URL } from '../../lib/weddingConfig';
 
-// Replace with your deployed Google Apps Script Web App URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytpRJvfdeZHWyE9M7ijlMnhFc-ljWb_NsDkN4xzhr93wnn3yv-YJMkcyMhbOit-JCn/exec';
-
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type UploadStatus = 'idle' | 'uploading' | 'success' | 'partial' | 'error';
 
 export default function UploadPage() {
     const { t } = useI18n();
@@ -18,10 +16,11 @@ export default function UploadPage() {
     const [uploadCount, setUploadCount] = useState(0);
     const [progress, setProgress] = useState(0);
     const [progressLabel, setProgressLabel] = useState('');
-    const [resetSignal, setResetSignal] = useState(0);
+    const [failureCount, setFailureCount] = useState(0);
 
     const handleUpload = async (files: FileWithPreview[]) => {
         setStatus('uploading');
+        setFailureCount(0);
         setProgress(0);
         setProgressLabel(`0/${files.length}`);
 
@@ -38,29 +37,27 @@ export default function UploadPage() {
             };
         });
 
-        const { successCount } = await uploadPhotos(SCRIPT_URL, items, {
-            concurrency: 3,
+        const result = await uploadPhotos(APPS_SCRIPT_URL, items, {
+            concurrency: 2,
             onProgress: (p) => {
                 setProgress(p.fraction);
                 setProgressLabel(`${p.completedFiles}/${p.totalFiles}`);
             },
         });
 
-        if (successCount > 0) {
-            setUploadCount((prev) => prev + successCount);
-            setStatus('success');
-            setResetSignal((n) => n + 1);
-            setTimeout(() => {
-                if (typeof window !== 'undefined') window.location.reload();
-            }, 2500);
+        const failedIndexes = result.results
+            .filter((file) => !file.success)
+            .map((file) => file.index);
+        setFailureCount(result.failedCount);
+        if (result.successCount > 0) {
+            setUploadCount((prev) => prev + result.successCount);
+            setStatus(result.failedCount > 0 ? 'partial' : 'success');
         } else {
             setStatus('error');
-            setTimeout(() => {
-                setStatus('idle');
-                setProgress(0);
-                setProgressLabel('');
-            }, 4000);
         }
+        setProgress(0);
+        setProgressLabel('');
+        return { failedIndexes };
     };
 
     const uploadedText =
@@ -101,7 +98,6 @@ export default function UploadPage() {
                     isUploading={status === 'uploading'}
                     progress={progress}
                     progressLabel={progressLabel}
-                    resetSignal={resetSignal}
                 />
             </GlassCard>
 
@@ -122,6 +118,15 @@ export default function UploadPage() {
                         {t('upload.error')}
                     </p>
                     <p className="text-xs text-coffee/50 mt-0.5">{t('upload.errorDesc')}</p>
+                </div>
+            )}
+
+            {status === 'partial' && (
+                <div className="glass rounded-2xl p-4 text-center animate-fade-in-up border-gold/40 border">
+                    <p className="text-sm font-semibold text-coffee font-[family-name:var(--font-poppins)]">
+                        {t('upload.partial', { n: failureCount })}
+                    </p>
+                    <p className="text-xs text-coffee/50 mt-1">{t('upload.retryFailed')}</p>
                 </div>
             )}
 

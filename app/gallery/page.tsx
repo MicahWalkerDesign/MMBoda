@@ -1,41 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Lightbox from '../../components/Lightbox';
 import { useI18n } from '../../lib/i18n';
-import {
-    GALLERY_REFRESH_MS,
-    driveThumb,
-    fetchLivePhotos,
-    type DrivePhoto,
-} from '../../lib/galleryFeed';
-
-const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1hfwpx4Ifxxi-XH-MpMEgH3xm1S-yss52';
+import { driveThumb } from '../../lib/galleryFeed';
+import { useLiveGallery } from '../../lib/useLiveGallery';
+import { DRIVE_FOLDER_URL, GALLERY_PAGE_LIMIT } from '../../lib/weddingConfig';
 
 export default function GalleryPage() {
     const { t } = useI18n();
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-    const [livePhotos, setLivePhotos] = useState<DrivePhoto[] | null>(null);
+    const {
+        photos: livePhotos,
+        error,
+        refresh,
+        isLoading,
+    } = useLiveGallery(GALLERY_PAGE_LIMIT);
 
-    // Pull from Drive on mount, then refresh every 15 min.
-    useEffect(() => {
-        const controller = new AbortController();
-        let cancelled = false;
-        const load = async () => {
-            const photos = await fetchLivePhotos(controller.signal);
-            if (!cancelled) setLivePhotos(photos);
-        };
-        load();
-        const id = setInterval(load, GALLERY_REFRESH_MS);
-        return () => {
-            cancelled = true;
-            controller.abort();
-            clearInterval(id);
-        };
-    }, []);
-
-    const isLoading = livePhotos === null;
-    const isEmpty = livePhotos !== null && livePhotos.length === 0;
+    const isEmpty = livePhotos !== null && livePhotos.length === 0 && !error;
     const images: string[] = livePhotos ? livePhotos.map((p) => driveThumb(p.id, 1600)) : [];
 
     return (
@@ -46,8 +28,17 @@ export default function GalleryPage() {
                 </h1>
                 <p className="text-sm text-coffee/60">{t('gallery.subtitleStandalone')}</p>
                 <p className="text-[11px] text-coffee/45 pt-1">
-                    {isLoading ? t('gallery.loading') : isEmpty ? t('gallery.empty') : t('gallery.live')}
+                    {isLoading ? t('gallery.loading') : error && images.length === 0 ? t('gallery.error') : isEmpty ? t('gallery.empty') : t('gallery.live')}
                 </p>
+                {error && images.length === 0 && (
+                    <button
+                        type="button"
+                        onClick={() => refresh()}
+                        className="text-xs font-semibold text-terracotta hover:text-terracotta-dark"
+                    >
+                        {t('gallery.retry')}
+                    </button>
+                )}
             </div>
 
             {!isLoading && !isEmpty && (
@@ -65,6 +56,7 @@ export default function GalleryPage() {
                                     src={src}
                                     alt={`Photo ${i + 1}`}
                                     loading="lazy"
+                                    referrerPolicy="no-referrer"
                                     className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-coffee/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
