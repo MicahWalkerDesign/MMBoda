@@ -111,7 +111,7 @@ export default function PhotoCarousel({
     }
 
     return (
-        <div className="relative space-y-3">
+        <div className="relative max-w-5xl mx-auto space-y-3">
             {/* Carousel container with proper padding for edge peek */}
             <div
                 ref={scrollRef}

@@ -53,52 +53,30 @@ function uploadOne(
   timeoutMs: number,
   signal?: AbortSignal
 ): Promise<UploadResponse> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    let settled = false;
-    const abort = () => xhr.abort();
-    const finish = (callback: () => void) => {
-      if (settled) return;
-      settled = true;
-      signal?.removeEventListener('abort', abort);
-      callback();
-    };
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort', abort, { once: true });
 
-    xhr.open('POST', url);
-    xhr.timeout = timeoutMs;
-    xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) onBytes(event.loaded);
-    };
-    xhr.upload.onload = () => onBytes(new Blob([body]).size);
-    xhr.onload = () => finish(() => {
-      if (xhr.status < 200 || xhr.status >= 300) {
-        reject(new Error(`Upload failed with HTTP ${xhr.status}.`));
-        return;
-      }
-      try {
-        const response = JSON.parse(xhr.responseText) as UploadResponse;
-        if (response.ok !== true || !response.id) {
-          reject(new Error(response.error || response.reason || 'The server did not confirm the upload.'));
-          return;
-        }
-        resolve(response);
-      } catch {
-        reject(new Error('The server returned an invalid response.'));
-      }
-    });
-    xhr.onerror = () => finish(() => reject(new Error('Network error.')));
-    xhr.onabort = () => finish(() => reject(new Error('Upload cancelled.')));
-    xhr.ontimeout = () => finish(() => reject(new Error('Upload timed out.')));
-
-    if (signal) {
-      if (signal.aborted) {
-        reject(new Error('Upload cancelled.'));
-        return;
-      }
-      signal.addEventListener('abort', abort, { once: true });
+  return fetch(url, {
+    method: 'POST',
+    // Apps Script redirects POST responses to a different Google origin. An
+    // opaque simple request lets the upload complete without a CORS readback.
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body,
+    signal: controller.signal,
+  }).then(() => {
+    onBytes(new Blob([body]).size);
+    return { ok: true };
+  }).catch((error) => {
+    if (controller.signal.aborted) {
+      throw new Error(signal?.aborted ? 'Upload cancelled.' : 'Upload timed out.');
     }
-    xhr.send(body);
+    throw error instanceof Error ? error : new Error('Network error.');
+  }).finally(() => {
+    window.clearTimeout(timeout);
+    signal?.removeEventListener('abort', abort);
   });
 }
 
