@@ -164,6 +164,7 @@ function doGet() {
       const file = files.next();
       const mime = String(file.getMimeType() || '').toLowerCase();
       if (CONFIG.ALLOWED_IMAGE_TYPES.indexOf(mime) === -1) continue;
+      if (/codex_.*test/i.test(file.getName())) continue;
       photos.push({
         id: file.getId(),
         name: file.getName(),

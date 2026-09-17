@@ -533,6 +533,8 @@ export default function HomePage() {
               images={galleryImages}
               onImageClick={(i) => setLightboxIndex(i)}
               expandLabel={t('gallery.expand')}
+              initialCount={3}
+              batchSize={3}
             />
           )}
           {galleryImages.length > 0 && (

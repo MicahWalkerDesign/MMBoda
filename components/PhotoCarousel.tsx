@@ -6,15 +6,30 @@ interface PhotoCarouselProps {
     images: string[];
     onImageClick: (index: number) => void;
     expandLabel: string;
+    initialCount?: number;
+    batchSize?: number;
 }
 
-export default function PhotoCarousel({ images, onImageClick, expandLabel }: PhotoCarouselProps) {
+export default function PhotoCarousel({
+    images,
+    onImageClick,
+    expandLabel,
+    initialCount = images.length,
+    batchSize = 3,
+}: PhotoCarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [visibleCount, setVisibleCount] = useState(() => Math.min(initialCount, images.length));
     const [isDragging, setIsDragging] = useState(false);
     const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
     const dragStart = useRef<{ x: number; scroll: number } | null>(null);
     const didDrag = useRef(false);
+    const imagesKey = images.join('|');
+    const visibleImages = images.slice(0, visibleCount);
+
+    const revealNextBatch = useCallback(() => {
+        setVisibleCount((count) => Math.min(count + batchSize, images.length));
+    }, [batchSize, images.length]);
 
     const updateActiveIndex = useCallback(() => {
         const el = scrollRef.current;
@@ -24,8 +39,20 @@ export default function PhotoCarousel({ images, onImageClick, expandLabel }: Pho
         const itemWidth = firstChild.offsetWidth;
         const gap = 12;
         const index = Math.round(el.scrollLeft / (itemWidth + gap));
-        setActiveIndex(Math.min(Math.max(index, 0), images.length - 1));
-    }, [images.length]);
+        setActiveIndex(Math.min(Math.max(index, 0), visibleCount - 1));
+
+        const remaining = el.scrollWidth - el.clientWidth - el.scrollLeft;
+        if (remaining < itemWidth) revealNextBatch();
+    }, [revealNextBatch, visibleCount]);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            setVisibleCount(Math.min(initialCount, images.length));
+            setActiveIndex(0);
+            if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [imagesKey, images.length, initialCount]);
 
     useEffect(() => {
         const el = scrollRef.current;
@@ -68,6 +95,10 @@ export default function PhotoCarousel({ images, onImageClick, expandLabel }: Pho
         const el = scrollRef.current;
         const first = el?.children[0] as HTMLElement | undefined;
         if (!el || !first) return;
+        const nearRenderedEnd = el.scrollWidth - el.clientWidth - el.scrollLeft < first.offsetWidth;
+        if (direction === 1 && (nearRenderedEnd || activeIndex >= visibleCount - 2)) {
+            revealNextBatch();
+        }
         el.scrollBy({ left: direction * (first.offsetWidth + 12), behavior: 'smooth' });
     };
 
@@ -99,7 +130,7 @@ export default function PhotoCarousel({ images, onImageClick, expandLabel }: Pho
                 {/* Hide scrollbar */}
                 <style jsx>{`div::-webkit-scrollbar { display: none; }`}</style>
 
-                {images.map((src, i) => (
+                {visibleImages.map((src, i) => (
                     <button
                         key={i}
                         onClick={() => handleClick(i)}
@@ -136,7 +167,7 @@ export default function PhotoCarousel({ images, onImageClick, expandLabel }: Pho
                 ))}
             </div>
 
-            {images.length > 1 && (
+            {visibleImages.length > 1 && (
                 <>
                     <button
                         type="button"
@@ -158,9 +189,9 @@ export default function PhotoCarousel({ images, onImageClick, expandLabel }: Pho
             )}
 
             {/* Dot indicators */}
-            {images.length > 1 && (
+            {visibleImages.length > 1 && (
                 <div className="flex justify-center gap-1.5">
-                    {images.map((_, i) => (
+                    {visibleImages.map((_, i) => (
                         <div
                             key={i}
                             className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIndex
