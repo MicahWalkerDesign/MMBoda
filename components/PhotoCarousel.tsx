@@ -115,7 +115,7 @@ export default function PhotoCarousel({
             {/* Carousel container with proper padding for edge peek */}
             <div
                 ref={scrollRef}
-                className={`flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pl-2 pr-2 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'
+                className={`flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 pl-2 pr-2 ${visibleImages.length <= 3 ? 'lg:justify-center' : ''} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'
                     }`}
                 style={{
                     scrollbarWidth: 'none',
